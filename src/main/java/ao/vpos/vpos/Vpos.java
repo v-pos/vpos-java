@@ -59,9 +59,7 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    VposViewModel returnedObject = new VposViewModel(response.statusCode(), "OK", response.body());
-
-    return returnedObject;
+    return returnObject(response);
   }
 
   public VposViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
