@@ -1,11 +1,9 @@
 package ao.vpos.vpos;
 
-import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.List;
 
 import java.net.URI;
 import java.net.URL;
@@ -15,8 +13,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import ao.vpos.vpos.model.ReturnObject;
-import javax.annotation.Nonnull;
+import ao.vpos.vpos.model.VposViewModel;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class Vpos {
   private static final String PRODUCTION_BASE_URL = "https://api.vpos.ao";
@@ -48,15 +46,7 @@ public class Vpos {
     this.token = token;
   }
 
-  private String getToken() {
-    return token; 
-  }
-
-  private String getBaseUrl() {
-    return String.valueOf(baseUrl);
-  }
-
-  public HashMap<String, String> getAllTransactions() throws IOException, InterruptedException {
+  public VposViewModel getAllTransactions() throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -69,16 +59,12 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    HashMap<String, String> returnedObject = new HashMap<String, String>();
-
-    returnedObject.put("code", String.valueOf(response.statusCode()));
-    returnedObject.put("message", "OK"); 
-    returnedObject.put("data", String.valueOf(response.body()));
+    VposViewModel returnedObject = new VposViewModel(response.statusCode(), "OK", response.body());
 
     return returnedObject;
   }
 
-  public ReturnObject getTransaction(String transactionId) throws IOException, InterruptedException {
+  public VposViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -89,16 +75,52 @@ public class Vpos {
       .uri(URI.create(getBaseUrl() + String.format("/api/v1/transactions/%s", transactionId)))
       .build();
     
-    //HashMap<String, String> returnedObject = new HashMap<String, String>();
-
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    //returnedObject.put("code", String.valueOf(response.statusCode()));
-    //returnedObject.put("message", "OK"); 
-    //returnedObject.put("data", response.body());
+    return returnObject(response);
+  }
 
-    ReturnObject returnedObject = new ReturnObject(response.statusCode(), "OK", response.body());
+  public VposViewModel newPayment(HashMap<String, String> body) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
 
-    return returnedObject; 
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + token)
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+    
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+
+  private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException{
+    switch(response.statusCode()) {
+      case 200:
+        return new VposViewModel(response.statusCode(), "OK", response.body());
+      case 202:
+        return new VposViewModel(response.statusCode(), "Accepted", response.headers().map().get("Location").toString());
+      case 303:
+        return new VposViewModel(response.statusCode(), "See More", response.headers().map().get("Location").toString());
+      case 404:
+        return new VposViewModel(response.statusCode(), "Not Found", "Empty");
+      case 400:
+        return new VposViewModel(response.statusCode(), "Bad Request", response.body());
+      default:
+        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contant administrator for help");
+    } 
+  }
+
+  private String getToken() {
+    return token; 
+  }
+
+  private String getBaseUrl() {
+    return String.valueOf(baseUrl);
   }
 }
