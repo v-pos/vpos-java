@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 
 import ao.vpos.vpos.model.VposViewModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.UUID;
 
 public class Vpos {
   private static final String PRODUCTION_BASE_URL = "https://api.vpos.ao";
@@ -28,32 +29,43 @@ public class Vpos {
     SANDBOX
   }
 
-  public Vpos(String token) throws IOException, InterruptedException  {
-    this.token = token;
+  // constructors
+  public Vpos() throws IOException, InterruptedException {
+      try{
+        this.token = System.getenv("MERCHANT_VPOS_TOKEN");
+        this.baseUrl = new URL(SANDBOX_BASE_URL);
+      } catch(MalformedURLException e) {
+          throw new RuntimeException(e);
+      }
+  }
+
+  public Vpos(String newToken) throws IOException, InterruptedException  {
     try{
+      this.token = newToken;
       this.baseUrl = new URL(SANDBOX_BASE_URL);
     } catch(MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public Vpos(Environment environment, String token) throws IOException, InterruptedException {
+  public Vpos(String newToken, Environment environment) throws IOException, InterruptedException {
     try{
+      this.token = newToken;
       this.baseUrl = (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
     } catch(MalformedURLException e) {
       throw new RuntimeException(e);
     }
-    this.token = token;
   }
 
-  public VposViewModel getAllTransactions() throws IOException, InterruptedException {
+  // api methods
+  public VposViewModel getTransactions() throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
-      .header("Authorization", "Bearer " + token)
+      .header("Authorization", "Bearer " + getToken())
       .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
       .build();
 
@@ -69,7 +81,7 @@ public class Vpos {
       .GET()
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
-      .header("Authorization", "Bearer " + token)
+      .header("Authorization", "Bearer " + getToken())
       .uri(URI.create(getBaseUrl() + String.format("/api/v1/transactions/%s", transactionId)))
       .build();
     
@@ -81,6 +93,10 @@ public class Vpos {
   public VposViewModel newPayment(HashMap<String, String> body) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
+    body.put("type", "payment");
+    body.put("pos_id", System.getenv("GPO_POS_ID"));
+    body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+
     ObjectMapper objectMapper = new ObjectMapper();
     String requestBody = objectMapper.writeValueAsString(body);
 
@@ -88,7 +104,8 @@ public class Vpos {
       .POST(HttpRequest.BodyPublishers.ofString(requestBody))
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
-      .header("Authorization", "Bearer " + token)
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
       .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
       .build();
     
@@ -97,7 +114,48 @@ public class Vpos {
     return returnObject(response);
   }
 
-  private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException{
+  public VposViewModel newRefund(HashMap<String, String> body) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    body.put("type", "refund");
+    body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
+    body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+
+  public VposViewModel getRequest(String requestId) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .GET()
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .uri(URI.create(getBaseUrl() + String.format("/api/v1/requests/%s", requestId)))
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+
+  // helper methods
+  private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException {
     switch(response.statusCode()) {
       case 200:
         return new VposViewModel(response.statusCode(), "OK", response.body());
@@ -115,10 +173,15 @@ public class Vpos {
   }
 
   private String getToken() {
-    return token; 
+    return this.token;
   }
 
   private String getBaseUrl() {
-    return String.valueOf(baseUrl);
+    return String.valueOf(this.baseUrl);
+  }
+
+  public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
+      String location = object.getData().toString();
+      return location.substring(18, location.length() - 1);
   }
 }

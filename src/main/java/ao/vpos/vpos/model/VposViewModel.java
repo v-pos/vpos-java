@@ -1,11 +1,11 @@
 package ao.vpos.vpos.model;
 
-public class ReturnObject {
+public class VposViewModel {
   private Integer code;
   private String message;
   private String data; 
 
-  public ReturnObject(Integer code, String message, String data) {
+  public VposViewModel(Integer code, String message, String data) {
     this.code = code;
     this.message = message;
     this.data = data;
