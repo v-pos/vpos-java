@@ -102,7 +102,7 @@ public class Vpos {
   // api payment methods
   public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     
     body.put("type", "payment");
     body.put("pos_id", System.getenv("GPO_POS_ID"));
@@ -129,7 +129,7 @@ public class Vpos {
   
   public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     
     body.put("type", "payment");
     body.put("pos_id", posID);
@@ -156,7 +156,7 @@ public class Vpos {
   
   public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     
     body.put("type", "payment");
     body.put("pos_id", posID);
@@ -167,7 +167,7 @@ public class Vpos {
     ObjectMapper objectMapper = new ObjectMapper();
     String requestBody = objectMapper.writeValueAsString(body);
 
-    HttpRequest request = HttpRequest.newBuilder()
+    var request = HttpRequest.newBuilder()
       .POST(HttpRequest.BodyPublishers.ofString(requestBody))
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
@@ -185,16 +185,16 @@ public class Vpos {
   public VposViewModel newRefund(String parentTransactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
     body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
     body.put("parent_transaction_id", parentTransactionId);
 
     ObjectMapper objectMapper = new ObjectMapper();
-    String requestBody = objectMapper.writeValueAsString(body);
+    var requestBody = objectMapper.writeValueAsString(body);
 
-    HttpRequest request = HttpRequest.newBuilder()
+    var request = HttpRequest.newBuilder()
       .POST(HttpRequest.BodyPublishers.ofString(requestBody))
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
@@ -211,7 +211,7 @@ public class Vpos {
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
     body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
@@ -237,7 +237,7 @@ public class Vpos {
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
-    HashMap<String, String> body = new HashMap<String, String>();
+    var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
     body.put("callback_url", refundCallbackUrl);
@@ -262,9 +262,9 @@ public class Vpos {
 
   // api poll status methods
   public VposViewModel getRequest(String requestId) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
+    var client = HttpClient.newHttpClient();
 
-    HttpRequest request = HttpRequest.newBuilder()
+    var request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
       .header("Content-Type", "application/json")
@@ -277,7 +277,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  // helper methods
+  // Helpers
   private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException {
     switch(response.statusCode()) {
       case 200:
@@ -306,7 +306,7 @@ public class Vpos {
   }
 
   public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
-      String location = object.getData().toString();
+      var location = object.getData();
       return location.substring(18, location.length() - 1);
   }
 }
