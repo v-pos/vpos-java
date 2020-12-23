@@ -6,7 +6,6 @@
 package ao.vpos.vpos;
 
 import ao.vpos.vpos.model.VposViewModel;
-import ao.vpos.vpos.Vpos;
 import ao.vpos.vpos.model.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +16,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,6 +82,89 @@ public class VposTest {
         assertEquals(401, returnedResponse.statusCode());
     }
     
+    @Test
+    public void itShouldNotCreateNewPaymentTransactionIfMobileIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        
+        var body = new HashMap<String, String>();
+    
+        body.put("type", "payment");
+        body.put("pos_id", System.getenv("GPO_POS_ID"));
+        body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+        body.put("mobile", "9001112223");
+        body.put("amount", "123.45");
+        
+        var objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(body);
+        
+        var request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        assertEquals(400, returnedResponse.statusCode());
+        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", returnedResponse.body());
+    }
+    
+    @Test
+    public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormated() throws MalformedURLException, IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        
+        var body = new HashMap<String, String>();
+    
+        body.put("type", "payment");
+        body.put("pos_id", System.getenv("GPO_POS_ID"));
+        body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+        body.put("mobile", "900111222");
+        body.put("amount", "123.45.12");
+        
+        var objectMapper = new ObjectMapper();
+        var requestBody = objectMapper.writeValueAsString(body);
+        
+        var request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        assertEquals(400, returnedResponse.statusCode());
+        assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", returnedResponse.body());
+    }
+    
+    @Test
+    public void itShouldNotCreateNewPaymentTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        
+        var body = new HashMap<String, String>();
+    
+        body.put("type", "payment");
+        body.put("pos_id", System.getenv("GPO_POS_ID"));
+        body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+        body.put("mobile", "900111222");
+        body.put("amount", "123.45.12");
+        
+        var objectMapper = new ObjectMapper();
+        var requestBody = objectMapper.writeValueAsString(body);
+        
+        var request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + UUID.randomUUID().toString())
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        assertEquals(401, returnedResponse.statusCode());
+    }
+    
     // POSITIVES
     @Test
     public void itShouldGetSingleTransaction() throws MalformedURLException, IOException, InterruptedException {
@@ -125,6 +208,33 @@ public class VposTest {
         
         assertEquals(200, transactions.getCode());
         assertEquals("OK", transactions.getMessage());
+    }
+    
+    @Test
+    public void itShouldCreateNewPaymentTransaction() throws MalformedURLException, IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        
+        var body = new HashMap<String, String>();
+    
+        body.put("type", "payment");
+        body.put("pos_id", System.getenv("GPO_POS_ID"));
+        body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+        body.put("mobile", "900111222");
+        body.put("amount", "123.45");
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(body);
+        
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        assertEquals(202, returnedResponse.statusCode());
     }
     
     // Helpers
