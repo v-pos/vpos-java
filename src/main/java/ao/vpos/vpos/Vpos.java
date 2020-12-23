@@ -38,6 +38,15 @@ public class Vpos {
           throw new RuntimeException(e);
       }
   }
+  
+  public Vpos(Environment environment) throws IOException, InterruptedException  {
+    try{
+      this.token = System.getenv("MERCHANT_VPOS_TOKEN");
+      this.baseUrl = (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
+    } catch(MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   public Vpos(String newToken) throws IOException, InterruptedException  {
     try{
@@ -47,7 +56,7 @@ public class Vpos {
       throw new RuntimeException(e);
     }
   }
-
+  
   public Vpos(String newToken, Environment environment) throws IOException, InterruptedException {
     try{
       this.token = newToken;
@@ -89,13 +98,71 @@ public class Vpos {
 
     return returnObject(response);
   }
-
-  public VposViewModel newPayment(HashMap<String, String> body) throws IOException, InterruptedException {
+  
+  // api payment methods
+  public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
-
+    HashMap<String, String> body = new HashMap<String, String>();
+    
     body.put("type", "payment");
     body.put("pos_id", System.getenv("GPO_POS_ID"));
     body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+    body.put("mobile", mobile);
+    body.put("amount", amount);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+    
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+  
+  public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+    HashMap<String, String> body = new HashMap<String, String>();
+    
+    body.put("type", "payment");
+    body.put("pos_id", posID);
+    body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+    body.put("mobile", mobile);
+    body.put("amount", amount);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+    
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+  
+  public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+    HashMap<String, String> body = new HashMap<String, String>();
+    
+    body.put("type", "payment");
+    body.put("pos_id", posID);
+    body.put("callback_url", paymentCallbackUrl);
+    body.put("mobile", mobile);
+    body.put("amount", amount);
 
     ObjectMapper objectMapper = new ObjectMapper();
     String requestBody = objectMapper.writeValueAsString(body);
@@ -114,12 +181,67 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public VposViewModel newRefund(HashMap<String, String> body) throws IOException, InterruptedException {
+  // api refund methods
+  public VposViewModel newRefund(String parentTransactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
+    HashMap<String, String> body = new HashMap<String, String>();
     body.put("type", "refund");
     body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
     body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+    body.put("parent_transaction_id", parentTransactionId);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+  
+  public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    HashMap<String, String> body = new HashMap<String, String>();
+    body.put("type", "refund");
+    body.put("supervisor_card", supervisorCard);
+    body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+    body.put("parent_transaction_id", parentTransactionId);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String requestBody = objectMapper.writeValueAsString(body);
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
+      .header("Authorization", "Bearer " + getToken())
+      .header("Idempotency-Key", UUID.randomUUID().toString())
+      .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    return returnObject(response);
+  }
+  
+  public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    HashMap<String, String> body = new HashMap<String, String>();
+    body.put("type", "refund");
+    body.put("supervisor_card", supervisorCard);
+    body.put("callback_url", refundCallbackUrl);
+    body.put("parent_transaction_id", parentTransactionId);
 
     ObjectMapper objectMapper = new ObjectMapper();
     String requestBody = objectMapper.writeValueAsString(body);
@@ -138,6 +260,7 @@ public class Vpos {
     return returnObject(response);
   }
 
+  // api poll status methods
   public VposViewModel getRequest(String requestId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
@@ -167,6 +290,8 @@ public class Vpos {
         return new VposViewModel(response.statusCode(), "Not Found", "Empty");
       case 400:
         return new VposViewModel(response.statusCode(), "Bad Request", response.body());
+      case 401:
+        return new VposViewModel(response.statusCode(), "Not Authorized", response.body());
       default:
         return new VposViewModel(response.statusCode(), "Unknown Error", "Please contant administrator for help");
     } 
