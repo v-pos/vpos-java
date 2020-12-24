@@ -22,7 +22,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Test vPOS
-      run: mvn test -DMERCHANT_VPOS_TOKEN=${{ secrets.MERCHANT_VPOS_TOKEN }}
+      run: mvn test
       env:
         MERCHANT_VPOS_TOKEN: ${{ secrets.MERCHANT_VPOS_TOKEN }}
         GPO_POS_ID: ${{ secrets.GPO_POS_ID }}
