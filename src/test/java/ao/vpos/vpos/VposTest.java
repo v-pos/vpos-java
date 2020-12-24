@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ao.vpos.vpos;
 
 import ao.vpos.vpos.model.Transaction;
@@ -227,10 +222,50 @@ public class VposTest {
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
+                .header("Idempotency-Key", UUID.randomUUID().toString())
                 .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
                 .build();
         HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         
         assertEquals(202, returnedResponse.statusCode());
+    }
+
+    @Test
+    public void itShouldCreateNewRefundTransaction() throws MalformedURLException, IOException, InterruptedException {
+        var token = System.getenv("MERCHANT_VPOS_TOKEN");
+        var response = VposBuilder.newPayment("900111222", "123.45", token);
+        var location = response.headers().map().get("Location").toString();
+        var transactionId = location.substring(18, location.length() - 1);
+
+        TimeUnit.SECONDS.sleep(10);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        var body = new HashMap<String, String>();
+
+        body.put("type", "refund");
+        body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
+        body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+        body.put("parent_transaction_id", transactionId);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
+                .header("Idempotency-Key", UUID.randomUUID().toString())
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var returnedLocation = returnedResponse.headers().map().get("Location").toString();
+        var returnedTransactionId = returnedLocation.substring(18, returnedLocation.length() - 1);
+        var transaction = VposBuilder.getTransaction(returnedTransactionId, token);
+
+        assertEquals(202, returnedResponse.statusCode());
+        assertEquals(transactionId, transaction.getParentTransactionId());
     }
 }

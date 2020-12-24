@@ -5,6 +5,7 @@
  */
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.model.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 
 public class VposBuilder {
     public static HttpResponse<String> newPayment(String mobile, String amount, String token) throws MalformedURLException, IOException, InterruptedException {        
-        HttpClient client = HttpClient.newHttpClient();
+        var client = HttpClient.newHttpClient();
         
         var body = new HashMap<String, String>();
     
@@ -27,8 +28,8 @@ public class VposBuilder {
         body.put("mobile", mobile);
         body.put("amount", amount);
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestBody = objectMapper.writeValueAsString(body);
+        var objectMapper = new ObjectMapper();
+        var requestBody = objectMapper.writeValueAsString(body);
         
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -38,5 +39,22 @@ public class VposBuilder {
                 .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
                 .build();
         return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static Transaction getTransaction(String transactionId, String token) throws MalformedURLException, IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+          .GET()
+          .header("Accept", "application/json")
+          .header("Content-Type", "application/json")
+          .header("Authorization", "Bearer " + token)
+          .uri(URI.create(new URL("https://sandbox.vpos.ao") + String.format("/api/v1/transactions/%s", transactionId)))
+          .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(response.body(), Transaction.class);
     }
 }
