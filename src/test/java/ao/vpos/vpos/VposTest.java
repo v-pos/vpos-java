@@ -159,6 +159,77 @@ public class VposTest {
         assertEquals("\"Unauthorized\"", returnedResponse.body());
     }
     
+    @Test
+    public void itShouldNotCreateNewRefundTransactionIfParentTransactionIdDoesNotExist() throws MalformedURLException, IOException, InterruptedException {
+        var token = System.getenv("MERCHANT_VPOS_TOKEN");
+        var transactionId = UUID.randomUUID().toString();
+
+        TimeUnit.SECONDS.sleep(10);
+
+        var client = HttpClient.newHttpClient();
+
+        var body = new HashMap<String, String>();
+
+        body.put("type", "refund");
+        body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
+        body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+        body.put("parent_transaction_id", transactionId);
+
+        var objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(body);
+
+        var request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var location = returnedResponse.headers().map().get("Location").toString();
+        var newTransactionId = location.substring(18, location.length() - 1);
+
+        TimeUnit.SECONDS.sleep(10);
+
+        var transaction = VposBuilder.getTransaction(newTransactionId, token);
+
+        assertEquals(202, returnedResponse.statusCode());
+        assertEquals("Not Found", transaction.getMessage() );
+    }
+
+    @Test
+    public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+        var token = UUID.randomUUID().toString();
+        var transactionId = UUID.randomUUID().toString();
+
+        TimeUnit.SECONDS.sleep(10);
+
+        var client = HttpClient.newHttpClient();
+
+        var body = new HashMap<String, String>();
+
+        body.put("type", "refund");
+        body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
+        body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+        body.put("parent_transaction_id", transactionId);
+
+        var objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(body);
+
+        var request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
+                .build();
+        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, returnedResponse.statusCode());
+        assertEquals("\"Unauthorized\"", returnedResponse.body());
+    }
+
     // POSITIVES
     @Test
     public void itShouldGetSingleTransaction() throws MalformedURLException, IOException, InterruptedException {
@@ -206,7 +277,7 @@ public class VposTest {
     public void itShouldCreateNewPaymentTransaction() throws MalformedURLException, IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         
-        var body = new HashMap<String, String>();
+        var body = new HashMap<>();
     
         body.put("type", "payment");
         body.put("pos_id", System.getenv("GPO_POS_ID"));
@@ -241,7 +312,7 @@ public class VposTest {
 
         HttpClient client = HttpClient.newHttpClient();
 
-        var body = new HashMap<String, String>();
+        var body = new HashMap<>();
 
         body.put("type", "refund");
         body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
@@ -263,7 +334,9 @@ public class VposTest {
 
         var returnedLocation = returnedResponse.headers().map().get("Location").toString();
         var returnedTransactionId = returnedLocation.substring(18, returnedLocation.length() - 1);
-        var transaction = VposBuilder.getTransaction(returnedTransactionId, token);
+        var viewModel = VposBuilder.getTransaction(returnedTransactionId, token);
+
+        var transaction = objectMapper.readValue("{" + viewModel.getData() + "}", Transaction.class);
 
         assertEquals(202, returnedResponse.statusCode());
         assertEquals(transactionId, transaction.getParentTransactionId());
