@@ -104,7 +104,7 @@ public class VposTest {
     }
     
     @Test
-    public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormated() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormed() throws MalformedURLException, IOException, InterruptedException {
         var client = HttpClient.newHttpClient();
         
         var body = new HashMap<String, String>();
