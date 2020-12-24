@@ -5,9 +5,7 @@
  */
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.VposViewModel;
 import ao.vpos.vpos.model.Transaction;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,10 +35,9 @@ public class VposTest {
                 .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        var transactions = returnObject(response);
         
-        assertEquals(401, transactions.getCode());
-        assertEquals("Not Authorized", transactions.getMessage());
+        assertEquals(401, response.statusCode());
+        assertEquals("\"Unauthorized\"", response.body());
     }
     
     @Test
@@ -80,6 +77,7 @@ public class VposTest {
         HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         
         assertEquals(401, returnedResponse.statusCode());
+        assertEquals("\"Unauthorized\"", returnedResponse.body());
     }
     
     @Test
@@ -163,6 +161,7 @@ public class VposTest {
         HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         
         assertEquals(401, returnedResponse.statusCode());
+        assertEquals("\"Unauthorized\"", returnedResponse.body());
     }
     
     // POSITIVES
@@ -204,10 +203,8 @@ public class VposTest {
                 .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        var transactions = returnObject(response);
         
-        assertEquals(200, transactions.getCode());
-        assertEquals("OK", transactions.getMessage());
+        assertEquals(200, response.statusCode());
     }
     
     @Test
@@ -236,24 +233,4 @@ public class VposTest {
         
         assertEquals(202, returnedResponse.statusCode());
     }
-    
-    // Helpers
-    private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException {
-    switch(response.statusCode()) {
-      case 200:
-        return new VposViewModel(response.statusCode(), "OK", response.body());
-      case 202:
-        return new VposViewModel(response.statusCode(), "Accepted", response.headers().map().get("Location").toString());
-      case 303:
-        return new VposViewModel(response.statusCode(), "See More", response.headers().map().get("Location").toString());
-      case 404:
-        return new VposViewModel(response.statusCode(), "Not Found", "Empty");
-      case 400:
-        return new VposViewModel(response.statusCode(), "Bad Request", response.body());
-      case 401:
-        return new VposViewModel(response.statusCode(), "Not Authorized", response.body());
-      default:
-        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contant administrator for help");
-    } 
-  }
 }
