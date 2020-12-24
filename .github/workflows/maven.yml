@@ -1,0 +1,32 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Deploy to Main Branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+    - name: Test vPOS
+      run: mvn test
+      env:
+        MERCHANT_VPOS_TOKEN: ${{ secrets.MERCHANT_VPOS_TOKEN }}
+        GPO_POS_ID: ${{ secrets.GPO_POS_ID }}
+        GPO_SUPERVISOR_CARD: ${{ secrets.GPO_SUPERVISOR_CARD }}
+        VPOS_PAYMENT_CALLBACK_URL: ${{ secrets.VPOS_PAYMENT_CALLBACK_URL }}
+        VPOS_REFUND_CALLBACK_URL: ${{ secrets.VPOS_REFUND_CALLBACK_URL }}
+      
