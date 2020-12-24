@@ -37,7 +37,7 @@ public class VposViewModel {
 
   @Override
   public String toString() {
-    return String.format("{\ncode: %s,\nmessage: %s,\ndata: %s\n}", code, message, data);
+    return String.format("{\ncode: \"%s\",\nmessage: \"%s\",\ndata: %s\n}", code, message, data);
   }
 
 }
