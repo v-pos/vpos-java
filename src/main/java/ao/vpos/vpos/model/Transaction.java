@@ -152,5 +152,9 @@ public class Transaction {
         this.statusDatetime = statusDatetime;
     }
     
+    @Override
+    public String toString() {
+        return String.format("\"id\": \"%s\", \"type\": \"%s\", \"amount\": \"%s\", \"mobile\": \"%s\", \"pos_id\": \"%s\", \"supervisor_card\": \"%s\", \"status\": \"%s\", \"status_reason\": \"%s\", \"status_datetime\": \"%s\", \"clearing_period\": \"%s\", \"parent_transaction_id\": \"%s\"", id, type, amount, mobile, posId, supervisorCard, status, statusReason, statusDatetime, clearingPeriod, parentTransactionId);
+    }
     
 }

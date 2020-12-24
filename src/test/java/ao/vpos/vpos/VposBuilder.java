@@ -1,6 +1,7 @@
 package ao.vpos.vpos;
 
 import ao.vpos.vpos.model.Transaction;
+import ao.vpos.vpos.model.VposViewModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -36,7 +37,7 @@ public class VposBuilder {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public static Transaction getTransaction(String transactionId, String token) throws MalformedURLException, IOException, InterruptedException {
+    public static VposViewModel getTransaction(String transactionId, String token) throws MalformedURLException, IOException, InterruptedException {
         var client = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -47,9 +48,15 @@ public class VposBuilder {
           .uri(URI.create(new URL("https://sandbox.vpos.ao") + String.format("/api/v1/transactions/%s", transactionId)))
           .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if(response.statusCode() == 404) {
+            return new VposViewModel(response.statusCode(), "Not Found", response.body());
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(response.body(), Transaction.class);
+        var transaction = objectMapper.readValue(response.body(), Transaction.class);
+
+        return new VposViewModel(response.statusCode(), "OK", transaction.toString());
     }
 }
