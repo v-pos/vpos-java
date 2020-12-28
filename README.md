@@ -57,8 +57,8 @@ The next section will show the various payment actions that can be performed by 
 This endpoint retrieves all transactions.
 
 ```java
-var vpos = new Vpos();
-var transactions = vpos.getTransactions();
+var merchant = new Vpos();
+var transactions = merchant.getTransactions();
 ```
 
 ### Get a specific Transaction
@@ -66,8 +66,8 @@ Retrieves a transaction given a valid transaction ID.
 
 
 ```java
-var vpos = new Vpos();
-var transactions = vpos.getTransaction("1jHXEbRTIbbwaoJ6w86");
+var merchant = new Vpos();
+var transactions = merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
@@ -79,8 +79,8 @@ Creates a new payment transaction given a valid mobile number associated with a 
 and a valid amount.
 
 ```java
-var vpos = new Vpos();
-var transactions = vpos.newPayment("900111222", "123.45");
+var merchant = new Vpos();
+var transactions = merchant.newPayment("900111222", "123.45");
 ```
 
 | Argument | Description | Type |
@@ -92,8 +92,8 @@ var transactions = vpos.newPayment("900111222", "123.45");
 Given an existing `parent_transaction_id`, request a refund.
 
 ```java
-var vpos = new Vpos();
-var transactions = vpos.newRefund("1jHXEbRTIbbwaoJ6w86");
+var merchant = new Vpos();
+var transactions = merchant.newRefund("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
@@ -106,8 +106,8 @@ Poll the status of a transaction given a valid `request_id`.
 Note: The `request_id` in this context is essentially the `transaction_id` of an existing request. 
 
 ```java
-var vpos = new Vpos();
-var request = vpos.getRequest("1jHXEbRTIbbwaoJ6w86");
+var merchant = new Vpos();
+var request = merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
