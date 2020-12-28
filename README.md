@@ -22,10 +22,16 @@ Does interacting directly with our API service sound better to you?
 See our documentation on [developer.vpos.ao](https://developer.vpos.ao)
 
 ## Installation
+Add the package dependencies to the `dependencies` element of your project pom.xml file
 ```xml
-    TODO
+<dependencies>
+  <dependency>
+    <groupId>ao.vpos.vpos</groupId>
+    <artifactId>vpos</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+</dependencies>
 ```
-
 
 ### Configuration
 This java library requires you set up the following environment variables on your machine before
