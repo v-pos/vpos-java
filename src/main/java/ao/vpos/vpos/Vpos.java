@@ -24,7 +24,7 @@ public class Vpos {
   private final URL baseUrl;
   private final String token;
 
-  private static final int LOCATION_INDEX = 18;
+  private static final int BEGIN_LOCATION_INDEX = 18;
 
   public enum Environment {
     PRODUCTION,
@@ -309,6 +309,7 @@ public class Vpos {
 
   public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
       var location = object.getData();
-      return location.substring(LOCATION_INDEX, location.length() - 1);
+      var endLocationIndex = location.length() - 1;
+      return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
   }
 }
