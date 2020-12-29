@@ -295,7 +295,7 @@ public class Vpos {
       case 401:
         return new VposViewModel(response.statusCode(), "Unauthorized", response.body());
       default:
-        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contant administrator for help");
+        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contact administrator for help");
     } 
   }
 
