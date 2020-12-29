@@ -24,6 +24,8 @@ public class Vpos {
   private final URL baseUrl;
   private final String token;
 
+  private static final int BEGIN_LOCATION_INDEX = 18;
+
   public enum Environment {
     PRODUCTION,
     SANDBOX
@@ -293,7 +295,7 @@ public class Vpos {
       case 401:
         return new VposViewModel(response.statusCode(), "Unauthorized", response.body());
       default:
-        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contant administrator for help");
+        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contact administrator for help");
     } 
   }
 
@@ -307,6 +309,7 @@ public class Vpos {
 
   public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
       var location = object.getData();
-      return location.substring(18, location.length() - 1);
+      var endLocationIndex = location.length() - 1;
+      return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
   }
 }
