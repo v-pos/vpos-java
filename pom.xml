@@ -17,6 +17,14 @@
     <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub NEXTBSS Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/nextbss/vpos-java</url>
+    </repository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.assertj</groupId>

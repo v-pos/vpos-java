@@ -37,14 +37,14 @@ Add the package dependencies to the `dependencies` element of your project pom.x
 This java library requires you set up the following environment variables on your machine before
 interacting with the API using this library:
 
-| Variable | Description
-| --- | --- | 
-| `GPO_POS_ID` | The Point of Sale ID provided by EMIS |
-| `GPO_SUPERVISOR_CARD` | The Supervisor card ID provided by EMIS |
-| `MERCHANT_VPOS_TOKEN` | The API token provided by vPOS |
-| `PAYMENT_CALLBACK_URL` | The URL that will handle payment notifications |
-| `REFUND_CALLBACK_URL` | The URL that will handle refund notifications |
-| `VPOS_ENVIRONMENT` | The vPOS environment, leave empty for `sandbox` mode and use `"prd"` for `production`.  |
+| Variable | Description | Required |
+| --- | --- | --- |
+| `GPO_POS_ID` | The Point of Sale ID provided by EMIS | true |
+| `GPO_SUPERVISOR_CARD` | The Supervisor card ID provided by EMIS | true |
+| `MERCHANT_VPOS_TOKEN` | The API token provided by vPOS | true |
+| `PAYMENT_CALLBACK_URL` | The URL that will handle payment notifications | false |
+| `REFUND_CALLBACK_URL` | The URL that will handle refund notifications | false |
+| `VPOS_ENVIRONMENT` | The vPOS environment, leave empty for `sandbox` mode and use `"prd"` for `production`.  | false |
 
 Don't have this information? [Talk to us](suporte@vpos.ao)
 
