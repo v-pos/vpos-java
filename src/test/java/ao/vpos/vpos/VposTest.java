@@ -88,35 +88,17 @@ public class VposTest {
 
         TimeUnit.SECONDS.sleep(10);
 
-        var client = HttpClient.newHttpClient();
+        var merchant = new Vpos();
+        var response = merchant.newRefund(transactionId);
+        assertEquals(202, response.getCode());
 
-        var body = new HashMap<String, String>();
-
-        body.put("type", "refund");
-        body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
-        body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
-        body.put("parent_transaction_id", transactionId);
-
-        var objectMapper = new ObjectMapper();
-        String requestBody = objectMapper.writeValueAsString(body);
-
-        var request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + token)
-                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
-                .build();
-        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        var location = returnedResponse.headers().map().get("Location").toString();
-        var newTransactionId = location.substring(18, location.length() - 1);
+        var refundTransactionId = merchant.getTransactionId(response);
 
         TimeUnit.SECONDS.sleep(10);
 
-        var transaction = VposBuilder.getTransaction(newTransactionId, token);
+        var transaction = merchant.getTransaction(refundTransactionId);
 
-        assertEquals(202, returnedResponse.statusCode());
+        assertEquals(404, transaction.getCode());
         assertEquals("Not Found", transaction.getMessage() );
     }
 
