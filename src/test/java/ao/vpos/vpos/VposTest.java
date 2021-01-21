@@ -31,21 +31,13 @@ public class VposTest {
 
     @Test
     public void itShouldNotGetSingleTransactionIfParentTransactionIdDoesNotExist() throws MalformedURLException, IOException, InterruptedException {
-        var token = System.getenv("MERCHANT_VPOS_TOKEN");
+
         var transactionId = UUID.randomUUID().toString();
+        var merchant = new Vpos();
+        var response = merchant.getTransaction(transactionId);
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .GET()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + token)
-                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions/" + transactionId))
-                .build();
-        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(404, returnedResponse.statusCode());
-        assertEquals("\"Not Found\"", returnedResponse.body());
+        assertEquals(404, response.getCode());
+        assertEquals("Not Found", response.getMessage());
     }
 
     @Test
