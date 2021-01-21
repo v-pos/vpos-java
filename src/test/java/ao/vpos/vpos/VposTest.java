@@ -42,23 +42,13 @@ public class VposTest {
 
     @Test
     public void itShouldNotGetSingleTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
-        var token = System.getenv("MERCHANT_VPOS_TOKEN");
-        var response = VposBuilder.newPayment("900111222", "123.45", token);
-        var location = response.headers().map().get("Location").toString();
-        var transactionId = location.substring(18, location.length() - 1);
+        var transactionId = UUID.randomUUID().toString();
+        var merchant = new Vpos();
+        merchant.setToken("invalid-token");
+        var response = merchant.getTransaction(transactionId);
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .GET()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + UUID.randomUUID().toString())
-                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions/" + transactionId))
-                .build();
-        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(401, returnedResponse.statusCode());
-        assertEquals("\"Unauthorized\"", returnedResponse.body());
+        assertEquals(401, response.getCode());
+        assertEquals("Unauthorized", response.getMessage());
     }
 
     @Test
