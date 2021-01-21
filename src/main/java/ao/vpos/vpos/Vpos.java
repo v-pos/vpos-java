@@ -22,7 +22,7 @@ public class Vpos {
   private static final String SANDBOX_BASE_URL = "https://sandbox.vpos.ao";
 
   private final URL baseUrl;
-  private final String token;
+  private String token;
 
   private static final int BEGIN_LOCATION_INDEX = 18;
 
@@ -40,7 +40,7 @@ public class Vpos {
           throw new RuntimeException(e);
       }
   }
-  
+
   public Vpos(Environment environment) throws IOException, InterruptedException  {
     try{
       this.token = System.getenv("MERCHANT_VPOS_TOKEN");
@@ -58,7 +58,7 @@ public class Vpos {
       throw new RuntimeException(e);
     }
   }
-  
+
   public Vpos(String newToken, Environment environment) throws IOException, InterruptedException {
     try{
       this.token = newToken;
@@ -95,17 +95,17 @@ public class Vpos {
       .header("Authorization", "Bearer " + getToken())
       .uri(URI.create(getBaseUrl() + String.format("/api/v1/transactions/%s", transactionId)))
       .build();
-    
+
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     return returnObject(response);
   }
-  
+
   // api payment methods
   public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-    
+
     body.put("type", "payment");
     body.put("pos_id", System.getenv("GPO_POS_ID"));
     body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
@@ -123,16 +123,16 @@ public class Vpos {
       .header("Idempotency-Key", UUID.randomUUID().toString())
       .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
       .build();
-    
+
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     return returnObject(response);
   }
-  
+
   public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-    
+
     body.put("type", "payment");
     body.put("pos_id", posID);
     body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
@@ -150,16 +150,16 @@ public class Vpos {
       .header("Idempotency-Key", UUID.randomUUID().toString())
       .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
       .build();
-    
+
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     return returnObject(response);
   }
-  
+
   public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-    
+
     body.put("type", "payment");
     body.put("pos_id", posID);
     body.put("callback_url", paymentCallbackUrl);
@@ -177,7 +177,7 @@ public class Vpos {
       .header("Idempotency-Key", UUID.randomUUID().toString())
       .uri(URI.create(getBaseUrl() + "/api/v1/transactions"))
       .build();
-    
+
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     return returnObject(response);
@@ -209,7 +209,7 @@ public class Vpos {
 
     return returnObject(response);
   }
-  
+
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
@@ -235,7 +235,7 @@ public class Vpos {
 
     return returnObject(response);
   }
-  
+
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
@@ -296,11 +296,15 @@ public class Vpos {
         return new VposViewModel(response.statusCode(), "Unauthorized", response.body());
       default:
         return new VposViewModel(response.statusCode(), "Unknown Error", "Please contact administrator for help");
-    } 
+    }
   }
 
   private String getToken() {
     return this.token;
+  }
+
+  protected void setToken(String token) {
+    this.token = token;
   }
 
   private String getBaseUrl() {
