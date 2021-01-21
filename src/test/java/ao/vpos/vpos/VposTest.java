@@ -53,30 +53,12 @@ public class VposTest {
 
     @Test
     public void itShouldNotCreateNewPaymentTransactionIfMobileIsInvalid() throws MalformedURLException, IOException, InterruptedException {
-        var client = HttpClient.newHttpClient();
+        var merchant = new Vpos();
+        var response = merchant.newPayment("9001112223", "123.45");
 
-        var body = new HashMap<String, String>();
-
-        body.put("type", "payment");
-        body.put("pos_id", System.getenv("GPO_POS_ID"));
-        body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
-        body.put("mobile", "9001112223");
-        body.put("amount", "123.45");
-
-        var objectMapper = new ObjectMapper();
-        String requestBody = objectMapper.writeValueAsString(body);
-
-        var request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + System.getenv("MERCHANT_VPOS_TOKEN"))
-                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
-                .build();
-        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(400, returnedResponse.statusCode());
-        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", returnedResponse.body());
+        assertEquals(400, response.getCode());
+        assertEquals("Bad Request", response.getMessage());
+        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", response.getData());
     }
 
     @Test
