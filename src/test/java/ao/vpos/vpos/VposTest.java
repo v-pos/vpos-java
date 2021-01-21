@@ -103,34 +103,14 @@ public class VposTest {
 
     @Test
     public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
-        var token = UUID.randomUUID().toString();
         var transactionId = UUID.randomUUID().toString();
 
-        TimeUnit.SECONDS.sleep(10);
+        var merchant = new Vpos();
+        merchant.setToken("invalid-token");
+        var response = merchant.newRefund(transactionId);
 
-        var client = HttpClient.newHttpClient();
-
-        var body = new HashMap<String, String>();
-
-        body.put("type", "refund");
-        body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
-        body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
-        body.put("parent_transaction_id", transactionId);
-
-        var objectMapper = new ObjectMapper();
-        String requestBody = objectMapper.writeValueAsString(body);
-
-        var request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + token)
-                .uri(URI.create(new URL("https://sandbox.vpos.ao") + "/api/v1/transactions"))
-                .build();
-        HttpResponse<String> returnedResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(401, returnedResponse.statusCode());
-        assertEquals("\"Unauthorized\"", returnedResponse.body());
+        assertEquals(401, response.getCode());
+        assertEquals("Unauthorized", response.getMessage());
     }
 
     // POSITIVES
