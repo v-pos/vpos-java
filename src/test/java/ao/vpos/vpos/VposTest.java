@@ -1,21 +1,14 @@
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.Transaction;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.junit.jupiter.api.Test;
 
 public class VposTest {
     // NEGATIVES
