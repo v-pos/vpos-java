@@ -259,7 +259,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldGetAllTransactions() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldGetAllTransactions() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.getTransactions();
         assertEquals(200, response.getCode());
