@@ -83,7 +83,6 @@ public class VposTest {
 
     @Test
     public void itShouldNotCreateNewRefundTransactionIfParentTransactionIdDoesNotExist() throws MalformedURLException, IOException, InterruptedException {
-        var token = System.getenv("MERCHANT_VPOS_TOKEN");
         var transactionId = UUID.randomUUID().toString();
 
         TimeUnit.SECONDS.sleep(10);
