@@ -91,7 +91,7 @@ public class VposTest {
         var transaction = merchant.getTransaction(refundTransactionId);
 
         assertEquals(404, transaction.getCode());
-        assertEquals("Not Found", transaction.getMessage() );
+        assertEquals("Not Found", transaction.getMessage());
     }
 
     @Test
