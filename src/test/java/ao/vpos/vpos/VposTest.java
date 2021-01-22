@@ -19,7 +19,7 @@ public class VposTest {
         merchant.setToken("invalid-token");
         var response = merchant.getTransactions();
 
-        assertEquals(401, response.getCode());
+        assertEquals(401, response.getStatusCode());
         assertEquals("\"Unauthorized\"", response.getData());
     }
 
@@ -50,7 +50,7 @@ public class VposTest {
         var merchant = new Vpos();
         var response = merchant.newPayment("9001112223", "123.45");
 
-        assertEquals(400, response.getCode());
+        assertEquals(400, response.getStatusCode());
         assertEquals("Bad Request", response.getMessage());
         assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", response.getData());
     }
@@ -60,7 +60,7 @@ public class VposTest {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45.36");
 
-        assertEquals(400, response.getCode());
+        assertEquals(400, response.getStatusCode());
         assertEquals("Bad Request", response.getMessage());
         assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", response.getData());
     }
@@ -71,7 +71,7 @@ public class VposTest {
         merchant.setToken("invalid-token");
         var response = merchant.newPayment("900111222", "199.99");
 
-        assertEquals(401, response.getCode());
+        assertEquals(401, response.getStatusCode());
         assertEquals("Unauthorized", response.getMessage());
     }
 
@@ -83,7 +83,7 @@ public class VposTest {
 
         var merchant = new Vpos();
         var response = merchant.newRefund(transactionId);
-        assertEquals(202, response.getCode());
+        assertEquals(202, response.getStatusCode());
 
         var refundTransactionId = merchant.getTransactionId(response);
 
@@ -103,7 +103,7 @@ public class VposTest {
         merchant.setToken("invalid-token");
         var response = merchant.newRefund(transactionId);
 
-        assertEquals(401, response.getCode());
+        assertEquals(401, response.getStatusCode());
         assertEquals("Unauthorized", response.getMessage());
     }
 
@@ -129,7 +129,7 @@ public class VposTest {
     public void itShouldGetAllTransactions() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.getTransactions();
-        assertEquals(200, response.getCode());
+        assertEquals(200, response.getStatusCode());
         assertEquals("OK", response.getMessage());
         assertNotNull(response.getData());
     }
@@ -139,7 +139,7 @@ public class VposTest {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "99.45");
 
-        assertEquals(202, response.getCode());
+        assertEquals(202, response.getStatusCode());
         assertEquals("Accepted", response.getMessage());
     }
 
@@ -156,7 +156,7 @@ public class VposTest {
         var returnedTransactionId = merchant.getTransactionId(refundResponse);
         var transactionResponse = merchant.getTransaction(returnedTransactionId);
 
-        assertEquals(202, refundResponse.getCode());
+        assertEquals(202, refundResponse.getStatusCode());
         assertEquals(200, transactionResponse.getStatusCode());
     }
 
