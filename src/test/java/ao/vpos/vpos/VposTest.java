@@ -1,5 +1,6 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.model.TransactionViewModel;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class VposTest {
         var merchant = new Vpos();
         var response = merchant.getTransaction(transactionId);
 
-        assertEquals(404, response.getCode());
+        assertEquals(404, response.getStatusCode());
         assertEquals("Not Found", response.getMessage());
     }
 
@@ -40,7 +41,7 @@ public class VposTest {
         merchant.setToken("invalid-token");
         var response = merchant.getTransaction(transactionId);
 
-        assertEquals(401, response.getCode());
+        assertEquals(401, response.getStatusCode());
         assertEquals("Unauthorized", response.getMessage());
     }
 
@@ -90,7 +91,7 @@ public class VposTest {
 
         var transaction = merchant.getTransaction(refundTransactionId);
 
-        assertEquals(404, transaction.getCode());
+        assertEquals(404, transaction.getStatusCode());
         assertEquals("Not Found", transaction.getMessage());
     }
 
@@ -116,10 +117,12 @@ public class VposTest {
 
         TimeUnit.SECONDS.sleep(10);
 
-        var returnedResponse = merchant.getTransaction(transactionId);
+        var returnedResponse = (TransactionViewModel) merchant.getTransaction(transactionId);
 
-        assertEquals(200, returnedResponse.getCode());
+        assertEquals(200, returnedResponse.getStatusCode());
         assertEquals("OK", returnedResponse.getMessage());
+        assertEquals("123.45", returnedResponse.getData().getAmount());
+        assertEquals("900111222", returnedResponse.getData().getMobile());
     }
 
     @Test
@@ -154,7 +157,7 @@ public class VposTest {
         var transactionResponse = merchant.getTransaction(returnedTransactionId);
 
         assertEquals(202, refundResponse.getCode());
-        assertEquals(200, transactionResponse.getCode());
+        assertEquals(200, transactionResponse.getStatusCode());
 
     }
 }
