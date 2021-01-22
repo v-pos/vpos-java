@@ -1,5 +1,9 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.model.Transaction;
+import ao.vpos.vpos.model.TransactionViewModel;
+import ao.vpos.vpos.model.ViewModel;
+import co.ao.nextbss.Yoru;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -81,11 +85,10 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
     return returnObject(response);
   }
 
-  public VposViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
+  public ViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -98,6 +101,11 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+    if (response.statusCode() == 200) {
+      Yoru<Transaction> converter = new Yoru();
+      Transaction transaction = converter.fromJson(response.body(), Transaction.class);
+      return new TransactionViewModel(200, "OK", transaction);
+    }
     return returnObject(response);
   }
 
