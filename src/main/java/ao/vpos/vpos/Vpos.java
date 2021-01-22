@@ -1,8 +1,6 @@
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.Transaction;
-import ao.vpos.vpos.model.TransactionViewModel;
-import ao.vpos.vpos.model.ViewModel;
+import ao.vpos.vpos.model.*;
 import co.ao.nextbss.Yoru;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,7 +15,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import ao.vpos.vpos.model.VposViewModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.UUID;
 
@@ -271,7 +268,7 @@ public class Vpos {
   }
 
   // api poll status methods
-  public VposViewModel getRequest(String requestId) throws IOException, InterruptedException {
+  public ViewModel getRequest(String requestId) throws IOException, InterruptedException {
     var client = HttpClient.newHttpClient();
 
     var request = HttpRequest.newBuilder()
@@ -283,6 +280,11 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    if (response.statusCode() == 200) {
+      Yoru<RequestResponse> converter = new Yoru<>();
+      var requestResponse = converter.fromJson(response.body(), RequestResponse.class);
+      return new RequestViewModel(200, "OK", requestResponse);
+    }
 
     return returnObject(response);
   }
