@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class VposTest {
     // NEGATIVES
     @Test
-    public void itShouldNotGetAllTransactionsIfTokenInvalid() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotGetAllTransactionsIfTokenInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
         var response = merchant.getTransactions();
@@ -24,7 +24,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotGetSingleTransactionIfParentTransactionIdDoesNotExist() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotGetSingleTransactionIfParentTransactionIdDoesNotExist() throws IOException, InterruptedException {
 
         var transactionId = UUID.randomUUID().toString();
         var merchant = new Vpos();
@@ -35,7 +35,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotGetSingleTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotGetSingleTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var transactionId = UUID.randomUUID().toString();
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
@@ -46,7 +46,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewPaymentTransactionIfMobileIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewPaymentTransactionIfMobileIsInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.newPayment("9001112223", "123.45");
 
@@ -56,7 +56,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormed() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormed() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45.36");
 
@@ -66,7 +66,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewPaymentTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewPaymentTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
         var response = merchant.newPayment("900111222", "199.99");
@@ -76,7 +76,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewRefundTransactionIfParentTransactionIdDoesNotExist() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewRefundTransactionIfParentTransactionIdDoesNotExist() throws IOException, InterruptedException {
         var transactionId = UUID.randomUUID().toString();
 
         TimeUnit.SECONDS.sleep(10);
@@ -96,7 +96,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var transactionId = UUID.randomUUID().toString();
 
         var merchant = new Vpos();
@@ -109,7 +109,7 @@ public class VposTest {
 
     // POSITIVES
     @Test
-    public void itShouldGetSingleTransaction() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldGetSingleTransaction() throws IOException, InterruptedException {
 
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
@@ -135,7 +135,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldCreateNewPaymentTransaction() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldCreateNewPaymentTransaction() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "99.45");
 
@@ -144,7 +144,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldCreateNewRefundTransaction() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldCreateNewRefundTransaction() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
         var transactionId = merchant.getTransactionId(response);
@@ -161,7 +161,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldGetRequestWhileTransactionIsQueued() throws MalformedURLException, IOException, InterruptedException {
+    public void itShouldGetRequestWhileTransactionIsQueued() throws IOException, InterruptedException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
         var transactionId = merchant.getTransactionId(response);
