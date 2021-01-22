@@ -1,5 +1,6 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.model.RequestViewModel;
 import ao.vpos.vpos.model.TransactionViewModel;
 import org.junit.jupiter.api.Test;
 
@@ -8,8 +9,7 @@ import java.net.MalformedURLException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VposTest {
     // NEGATIVES
@@ -158,6 +158,18 @@ public class VposTest {
 
         assertEquals(202, refundResponse.getCode());
         assertEquals(200, transactionResponse.getStatusCode());
+    }
 
+    @Test
+    public void itShouldGetRequestWhileTransactionIsQueued() throws MalformedURLException, IOException, InterruptedException {
+        var merchant = new Vpos();
+        var response = merchant.newPayment("900111222", "123.45");
+        var transactionId = merchant.getTransactionId(response);
+
+        var requestResponse = (RequestViewModel) merchant.getRequest(transactionId);
+
+        assertEquals(200, requestResponse.getStatusCode());
+        assertNotNull(requestResponse.getData().getEta());
+        assertNotNull(requestResponse.getData().getInsertedAt());
     }
 }
