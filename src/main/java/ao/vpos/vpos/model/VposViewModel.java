@@ -1,7 +1,7 @@
 package ao.vpos.vpos.model;
 
 
-public class VposViewModel {
+public class VposViewModel implements ViewModel<String> {
   private Integer code;
   private String message;
   private String data;
@@ -12,8 +12,9 @@ public class VposViewModel {
     this.data = data;
   }
 
-  public Integer getCode() {
-    return this.code;
+  @Override
+  public Integer getStatusCode() {
+    return code;
   }
 
   public String getMessage() {

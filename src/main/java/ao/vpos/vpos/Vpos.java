@@ -1,5 +1,7 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.model.*;
+import co.ao.nextbss.Yoru;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -13,7 +15,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import ao.vpos.vpos.model.VposViewModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.UUID;
 
@@ -81,11 +82,10 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
     return returnObject(response);
   }
 
-  public VposViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
+  public ViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -98,6 +98,11 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+    if (response.statusCode() == 200) {
+      Yoru<TransactionResponse> converter = new Yoru();
+      TransactionResponse transactionResponse = converter.fromJson(response.body(), TransactionResponse.class);
+      return new Transaction(200, "OK", transactionResponse);
+    }
     return returnObject(response);
   }
 
@@ -263,7 +268,7 @@ public class Vpos {
   }
 
   // api poll status methods
-  public VposViewModel getRequest(String requestId) throws IOException, InterruptedException {
+  public ViewModel getRequest(String requestId) throws IOException, InterruptedException {
     var client = HttpClient.newHttpClient();
 
     var request = HttpRequest.newBuilder()
@@ -275,8 +280,21 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    if (response.statusCode() == 200) {
+      Yoru<RequestResponse> converter = new Yoru<>();
+      var requestResponse = converter.fromJson(response.body(), RequestResponse.class);
+      return new Request(200, "OK", requestResponse, null);
+    }
+
+    if (response.statusCode() == 303) {
+      return new Request(303, "See More", null, getLocation(response));
+    }
 
     return returnObject(response);
+  }
+
+  private String getLocation(HttpResponse<String> response) {
+    return response.headers().map().get("Location").toString();
   }
 
   // Helpers

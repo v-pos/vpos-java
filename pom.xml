@@ -25,7 +25,20 @@
     </repository>
   </distributionManagement>
 
+  <repositories>	
+    <repository>
+     	<id>jitpack.io</id>
+     	<url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <dependencies>
+    <dependency>
+        <groupId>com.github.nextbss</groupId>
+        <artifactId>yoru</artifactId>
+        <version>1.0.2</version>
+    </dependency>
+
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
