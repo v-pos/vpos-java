@@ -75,28 +75,8 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldNotCreateNewRefundTransactionIfParentTransactionIdDoesNotExist() throws IOException, InterruptedException {
-        var transactionId = UUID.randomUUID().toString();
-
-        TimeUnit.SECONDS.sleep(10);
-
-        var merchant = new Vpos();
-        var response = merchant.newRefund(transactionId);
-        assertEquals(202, response.getStatusCode());
-
-        var refundTransactionId = merchant.getTransactionId(response);
-
-        TimeUnit.SECONDS.sleep(10);
-
-        var transaction = merchant.getTransaction(refundTransactionId);
-
-        assertEquals(404, transaction.getStatusCode());
-        assertEquals("Not Found", transaction.getMessage());
-    }
-
-    @Test
     public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
-        var transactionId = UUID.randomUUID().toString();
+        var transactionId = "non-existent-transaction-id";
 
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
