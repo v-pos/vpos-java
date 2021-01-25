@@ -1,14 +1,16 @@
 package ao.vpos.vpos.model;
 
-public class RequestViewModel implements ViewModel<RequestResponse> {
+public class Request implements ViewModel<RequestResponse>, LocationViewModel {
     private final Integer statusCode;
     private final String message;
     private final RequestResponse data;
+    private final String location;
 
-    public RequestViewModel(Integer statusCode, String message, RequestResponse data) {
+    public Request(Integer statusCode, String message, RequestResponse data, String location) {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
+        this.location = location;
     }
 
     @Override
@@ -24,5 +26,10 @@ public class RequestViewModel implements ViewModel<RequestResponse> {
     @Override
     public RequestResponse getData() {
         return data;
+    }
+
+    @Override
+    public String getLocation() {
+        return location;
     }
 }
