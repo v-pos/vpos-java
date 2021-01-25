@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author sergio
  */
-final public class Transaction {
+final public class TransactionResponse {
     @JsonProperty("id")
     private String  id;
     @JsonProperty("amount")
@@ -35,10 +35,10 @@ final public class Transaction {
     @JsonProperty("status_datetime")
     private String statusDatetime;
 
-    public Transaction() {
+    public TransactionResponse() {
     }
 
-    public Transaction(
+    public TransactionResponse(
             String id,
             String amount,
             String mobile,
