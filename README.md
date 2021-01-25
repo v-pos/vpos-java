@@ -73,7 +73,7 @@ Retrieves a transaction given a valid transaction ID.
 
 ```java
 var merchant = new Vpos();
-var transactions = merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
+var transactions = (Transaction) merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
@@ -92,7 +92,7 @@ var transactions = merchant.newPayment("900111222", "123.45");
 | Argument | Description | Type |
 | --- | --- | --- |
 | `mobile` | The mobile number of the client who will pay | `string`
-| `amount` | The amount the client should pay, eg. "259.99", "259,000.00" | `string`
+| `amount` | The amount the client should pay, eg. "259.99", "259000.00" | `string`
 
 ### Request Refund
 Given an existing `parent_transaction_id`, request a refund.
@@ -113,7 +113,7 @@ Note: The `request_id` in this context is essentially the `transaction_id` of an
 
 ```java
 var merchant = new Vpos();
-var request = merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
+var request = (Request) merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
