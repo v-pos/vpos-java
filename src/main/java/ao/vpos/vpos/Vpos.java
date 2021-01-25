@@ -99,9 +99,9 @@ public class Vpos {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     if (response.statusCode() == 200) {
-      Yoru<Transaction> converter = new Yoru();
-      Transaction transaction = converter.fromJson(response.body(), Transaction.class);
-      return new TransactionViewModel(200, "OK", transaction);
+      Yoru<TransactionResponse> converter = new Yoru();
+      TransactionResponse transactionResponse = converter.fromJson(response.body(), TransactionResponse.class);
+      return new Transaction(200, "OK", transactionResponse);
     }
     return returnObject(response);
   }
@@ -283,10 +283,18 @@ public class Vpos {
     if (response.statusCode() == 200) {
       Yoru<RequestResponse> converter = new Yoru<>();
       var requestResponse = converter.fromJson(response.body(), RequestResponse.class);
-      return new RequestViewModel(200, "OK", requestResponse);
+      return new Request(200, "OK", requestResponse, null);
+    }
+
+    if (response.statusCode() == 303) {
+      return new Request(303, "See More", null, getLocation(response));
     }
 
     return returnObject(response);
+  }
+
+  private String getLocation(HttpResponse<String> response) {
+    return response.headers().map().get("Location").toString();
   }
 
   // Helpers
