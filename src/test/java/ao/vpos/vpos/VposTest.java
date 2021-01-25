@@ -1,11 +1,10 @@
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.RequestViewModel;
-import ao.vpos.vpos.model.TransactionViewModel;
+import ao.vpos.vpos.model.Request;
+import ao.vpos.vpos.model.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -117,7 +116,7 @@ public class VposTest {
 
         TimeUnit.SECONDS.sleep(10);
 
-        var returnedResponse = (TransactionViewModel) merchant.getTransaction(transactionId);
+        var returnedResponse = (Transaction) merchant.getTransaction(transactionId);
 
         assertEquals(200, returnedResponse.getStatusCode());
         assertEquals("OK", returnedResponse.getMessage());
@@ -166,10 +165,25 @@ public class VposTest {
         var response = merchant.newPayment("900111222", "123.45");
         var transactionId = merchant.getTransactionId(response);
 
-        var requestResponse = (RequestViewModel) merchant.getRequest(transactionId);
+        var requestResponse = (Request) merchant.getRequest(transactionId);
 
         assertEquals(200, requestResponse.getStatusCode());
         assertNotNull(requestResponse.getData().getEta());
         assertNotNull(requestResponse.getData().getInsertedAt());
+    }
+
+    @Test
+    public void itShouldGetRequestWhenTransactionIsComplete() throws IOException, InterruptedException {
+        var merchant = new Vpos();
+        var response = merchant.newPayment("900111222", "123.45");
+        var transactionId = merchant.getTransactionId(response);
+
+        TimeUnit.SECONDS.sleep(10);
+
+        var request = (Request) merchant.getRequest(transactionId);
+
+        assertEquals(303, request.getStatusCode());
+        assertNotNull(request.getLocation());
+        assertNull(request.getData());
     }
 }
