@@ -1,11 +1,11 @@
 package ao.vpos.vpos.model;
 
-public class TransactionViewModel implements ViewModel<Transaction>{
+public class Transaction implements ViewModel<TransactionResponse>{
     private final Integer statusCode;
     private final String message;
-    private final Transaction data;
+    private final TransactionResponse data;
 
-    public TransactionViewModel(Integer statusCode, String message, Transaction data) {
+    public Transaction(Integer statusCode, String message, TransactionResponse data) {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
@@ -22,7 +22,7 @@ public class TransactionViewModel implements ViewModel<Transaction>{
     }
 
     @Override
-    public Transaction getData() {
+    public TransactionResponse getData() {
         return data;
     }
 }
