@@ -12,10 +12,6 @@ public class VposViewModel implements ViewModel<String> {
     this.data = data;
   }
 
-  public Integer getCode() {
-    return this.code;
-  }
-
   @Override
   public Integer getStatusCode() {
     return code;

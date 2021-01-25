@@ -1,6 +1,6 @@
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.Transaction;
+import ao.vpos.vpos.model.TransactionResponse;
 import ao.vpos.vpos.model.VposViewModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -13,20 +13,20 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 
 public class VposBuilder {
-    public static HttpResponse<String> newPayment(String mobile, String amount, String token) throws MalformedURLException, IOException, InterruptedException {        
+    public static HttpResponse<String> newPayment(String mobile, String amount, String token) throws MalformedURLException, IOException, InterruptedException {
         var client = HttpClient.newHttpClient();
-        
+
         var body = new HashMap<String, String>();
-    
+
         body.put("type", "payment");
         body.put("pos_id", System.getenv("GPO_POS_ID"));
         body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
         body.put("mobile", mobile);
         body.put("amount", amount);
-        
+
         var objectMapper = new ObjectMapper();
         var requestBody = objectMapper.writeValueAsString(body);
-        
+
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .header("Accept", "application/json")
@@ -55,7 +55,7 @@ public class VposBuilder {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
-        var transaction = objectMapper.readValue(response.body(), Transaction.class);
+        var transaction = objectMapper.readValue(response.body(), TransactionResponse.class);
 
         return new VposViewModel(response.statusCode(), "OK", transaction.toString());
     }
