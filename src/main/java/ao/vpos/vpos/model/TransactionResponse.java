@@ -68,88 +68,44 @@ final public class TransactionResponse {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getAmount() {
         return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
     }
 
     public String getMobile() {
         return mobile;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
     public String getParentTransactionId() {
         return parentTransactionId;
-    }
-
-    public void setParentTransactionId(String parentTransactionId) {
-        this.parentTransactionId = parentTransactionId;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public Integer getPosId() {
         return posId;
-    }
-
-    public void setPosId(Integer posId) {
-        this.posId = posId;
     }
 
     public String getSupervisorCard() {
         return supervisorCard;
     }
 
-    public void setSupervisorCard(String supervisorCard) {
-        this.supervisorCard = supervisorCard;
-    }
-
     public String getClearingPeriod() {
         return clearingPeriod;
-    }
-
-    public void setClearingPeriod(String clearingPeriod) {
-        this.clearingPeriod = clearingPeriod;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getStatusReason() {
         return statusReason;
     }
 
-    public void setStatusReason(String statusReason) {
-        this.statusReason = statusReason;
-    }
-
     public String getStatusDatetime() {
         return statusDatetime;
-    }
-
-    public void setStatusDatetime(String statusDatetime) {
-        this.statusDatetime = statusDatetime;
     }
 
     @Override
