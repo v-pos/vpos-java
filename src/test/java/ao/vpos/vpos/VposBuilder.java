@@ -1,6 +1,6 @@
 package ao.vpos.vpos;
 
-import ao.vpos.vpos.model.TransactionResponse;
+import ao.vpos.vpos.model.Transaction;
 import ao.vpos.vpos.model.VposResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class VposBuilder {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
-        var transaction = objectMapper.readValue(response.body(), TransactionResponse.class);
+        var transaction = objectMapper.readValue(response.body(), Transaction.class);
 
         return new VposResponse(response.statusCode(), "OK", transaction.toString());
     }

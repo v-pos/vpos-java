@@ -1,7 +1,7 @@
 package ao.vpos.vpos.model;
 
 
-public class VposResponse implements BaseResponse<String> {
+public class VposResponse implements Response<String> {
   private Integer code;
   private String message;
   private String data;
@@ -23,6 +23,11 @@ public class VposResponse implements BaseResponse<String> {
 
   public String getData() {
     return this.data;
+  }
+
+  @Override
+  public String getLocation() {
+    return null;
   }
 
   public void setCode(Integer code) {

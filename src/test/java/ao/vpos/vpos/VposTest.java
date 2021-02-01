@@ -1,5 +1,7 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.exception.ApiException;
+import ao.vpos.vpos.model.Response;
 import ao.vpos.vpos.model.Request;
 import ao.vpos.vpos.model.Transaction;
 import org.junit.jupiter.api.Test;
@@ -27,10 +29,16 @@ public class VposTest {
 
         var transactionId = UUID.randomUUID().toString();
         var merchant = new Vpos();
-        var response = merchant.getTransaction(transactionId);
+        ApiException exception = null;
+        try {
+            Response<Transaction> response = merchant.getTransaction(transactionId);
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(404, response.getStatusCode());
-        assertEquals("Not Found", response.getMessage());
+        assertNotNull(exception);
+        assertEquals(404, exception.getStatus());
+        assertEquals(null, exception.getResponseBody());
     }
 
     @Test
@@ -38,40 +46,59 @@ public class VposTest {
         var transactionId = UUID.randomUUID().toString();
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
-        var response = merchant.getTransaction(transactionId);
+        ApiException exception = null;
+        try {
+            Response<Transaction> response = merchant.getTransaction(transactionId);
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(401, response.getStatusCode());
-        assertEquals("Unauthorized", response.getMessage());
+        assertEquals(401, exception.getStatus());
     }
 
     @Test
     public void itShouldNotCreateNewPaymentTransactionIfMobileIsInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("9001112223", "123.45");
+        Response<String> response = null;
+        ApiException exception = null;
+        try {
+            response = merchant.newPayment("9001112223", "123.45");
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(400, response.getStatusCode());
-        assertEquals("Bad Request", response.getMessage());
-        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", response.getData());
+        assertEquals(400, exception.getStatus());
+        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", exception.getMessage());
     }
 
     @Test
     public void itShouldNotCreateNewPaymentTransactionIfAmountMalFormed() throws IOException, InterruptedException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("900111222", "123.45.36");
+        Response<String> response = null;
+        ApiException exception = null;
+        try {
+            response = merchant.newPayment("900111222", "123.45.36");
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(400, response.getStatusCode());
-        assertEquals("Bad Request", response.getMessage());
-        assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", response.getData());
+        assertEquals(400, exception.getStatus());
+        assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", exception.getMessage());
     }
 
     @Test
     public void itShouldNotCreateNewPaymentTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
-        var response = merchant.newPayment("900111222", "199.99");
+        Response<String> response = null;
+        ApiException exception = null;
+        try {
+            response = merchant.newPayment("900111222", "199.99");
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(401, response.getStatusCode());
-        assertEquals("Unauthorized", response.getMessage());
+        assertEquals(401, exception.getStatus());
     }
 
     @Test
@@ -80,23 +107,29 @@ public class VposTest {
 
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
-        var response = merchant.newRefund(transactionId);
+        ApiException exception = null;
+        Response response = null;
+        try {
+            response = merchant.newRefund(transactionId);
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(401, response.getStatusCode());
-        assertEquals("Unauthorized", response.getMessage());
+        assertEquals(401, exception.getStatus());
+        assertEquals("\"Unauthorized\"", exception.getMessage());
     }
 
     // POSITIVES
     @Test
-    public void itShouldGetSingleTransaction() throws IOException, InterruptedException {
+    public void itShouldGetSingleTransaction() throws IOException, InterruptedException, ApiException {
 
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
-        var transactionId = merchant.getTransactionId(response);
+        var transactionId = merchant.getTransactionId(response.getLocation());
 
         TimeUnit.SECONDS.sleep(10);
 
-        var returnedResponse = (Transaction) merchant.getTransaction(transactionId);
+        var returnedResponse = merchant.getTransaction(transactionId);
 
         assertEquals(200, returnedResponse.getStatusCode());
         assertEquals("OK", returnedResponse.getMessage());
@@ -114,7 +147,7 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldCreateNewPaymentTransaction() throws IOException, InterruptedException {
+    public void itShouldCreateNewPaymentTransaction() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "99.45");
 
@@ -123,44 +156,45 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldCreateNewRefundTransaction() throws IOException, InterruptedException {
+    public void itShouldCreateNewRefundTransaction() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
-        var transactionId = merchant.getTransactionId(response);
+        var transactionId = merchant.getTransactionId(response.getLocation());
 
         TimeUnit.SECONDS.sleep(10);
 
         var refundResponse = merchant.newRefund(transactionId);
 
-        var returnedTransactionId = merchant.getTransactionId(refundResponse);
-        var transactionResponse = merchant.getTransaction(returnedTransactionId);
+        var id = merchant.getTransactionId(refundResponse.getLocation());
+
+        var transactionResponse = merchant.getTransaction(id);
 
         assertEquals(202, refundResponse.getStatusCode());
         assertEquals(200, transactionResponse.getStatusCode());
     }
 
     @Test
-    public void itShouldGetRequestWhileTransactionIsQueued() throws IOException, InterruptedException {
+    public void itShouldGetRequestWhileTransactionIsQueued() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
-        var transactionId = merchant.getTransactionId(response);
+        var transactionId = merchant.getTransactionId(response.getLocation());
 
-        var requestResponse = (Request) merchant.getRequest(transactionId);
+        Response<Request> request = merchant.getRequest(transactionId);
 
-        assertEquals(200, requestResponse.getStatusCode());
-        assertNotNull(requestResponse.getData().getEta());
-        assertNotNull(requestResponse.getData().getInsertedAt());
+        assertEquals(200, request.getStatusCode());
+        assertNotNull(request.getData().getEta());
+        assertNotNull(request.getData().getInsertedAt());
     }
 
     @Test
-    public void itShouldGetRequestWhenTransactionIsComplete() throws IOException, InterruptedException {
+    public void itShouldGetRequestWhenTransactionIsComplete() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "123.45");
-        var transactionId = merchant.getTransactionId(response);
+        var transactionId = merchant.getTransactionId(response.getLocation());
 
         TimeUnit.SECONDS.sleep(10);
 
-        var request = (Request) merchant.getRequest(transactionId);
+        var request = merchant.getRequest(transactionId);
 
         assertEquals(303, request.getStatusCode());
         assertNotNull(request.getLocation());
