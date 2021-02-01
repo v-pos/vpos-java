@@ -1,12 +1,12 @@
 package ao.vpos.vpos.model;
 
 
-public class VposViewModel implements ViewModel<String> {
+public class VposResponse implements Response<String> {
   private Integer code;
   private String message;
   private String data;
 
-  public VposViewModel(Integer code, String message, String data) {
+  public VposResponse(Integer code, String message, String data) {
     this.code = code;
     this.message = message;
     this.data = data;

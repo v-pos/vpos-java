@@ -1,7 +1,7 @@
 package ao.vpos.vpos;
 
 import ao.vpos.vpos.model.TransactionResponse;
-import ao.vpos.vpos.model.VposViewModel;
+import ao.vpos.vpos.model.VposResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +37,7 @@ public class VposBuilder {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public static VposViewModel getTransaction(String transactionId, String token) throws MalformedURLException, IOException, InterruptedException {
+    public static VposResponse getTransaction(String transactionId, String token) throws MalformedURLException, IOException, InterruptedException {
         var client = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -51,12 +51,12 @@ public class VposBuilder {
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if(response.statusCode() == 404) {
-            return new VposViewModel(response.statusCode(), "Not Found", response.body());
+            return new VposResponse(response.statusCode(), "Not Found", response.body());
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
         var transaction = objectMapper.readValue(response.body(), TransactionResponse.class);
 
-        return new VposViewModel(response.statusCode(), "OK", transaction.toString());
+        return new VposResponse(response.statusCode(), "OK", transaction.toString());
     }
 }

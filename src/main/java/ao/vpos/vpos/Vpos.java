@@ -70,7 +70,7 @@ public class Vpos {
   }
 
   // api methods
-  public VposViewModel getTransactions() throws IOException, InterruptedException {
+  public VposResponse getTransactions() throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -85,7 +85,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public ViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
+  public Response getTransaction(String transactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -107,7 +107,7 @@ public class Vpos {
   }
 
   // api payment methods
-  public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
+  public VposResponse newPayment(String mobile, String amount) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
 
@@ -134,7 +134,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
+  public VposResponse newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
 
@@ -161,7 +161,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
+  public VposResponse newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
 
@@ -189,7 +189,7 @@ public class Vpos {
   }
 
   // api refund methods
-  public VposViewModel newRefund(String parentTransactionId) throws IOException, InterruptedException {
+  public VposResponse newRefund(String parentTransactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     var body = new HashMap<>();
@@ -215,7 +215,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
+  public VposResponse newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     var body = new HashMap<>();
@@ -241,7 +241,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
+  public VposResponse newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     var body = new HashMap<>();
@@ -268,7 +268,7 @@ public class Vpos {
   }
 
   // api poll status methods
-  public ViewModel getRequest(String requestId) throws IOException, InterruptedException {
+  public Response getRequest(String requestId) throws IOException, InterruptedException {
     var client = HttpClient.newHttpClient();
 
     var request = HttpRequest.newBuilder()
@@ -298,22 +298,22 @@ public class Vpos {
   }
 
   // Helpers
-  private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException {
+  private VposResponse returnObject(HttpResponse<String> response) throws JsonProcessingException {
     switch(response.statusCode()) {
       case 200:
-        return new VposViewModel(response.statusCode(), "OK", response.body());
+        return new VposResponse(response.statusCode(), "OK", response.body());
       case 202:
-        return new VposViewModel(response.statusCode(), "Accepted", response.headers().map().get("Location").toString());
+        return new VposResponse(response.statusCode(), "Accepted", response.headers().map().get("Location").toString());
       case 303:
-        return new VposViewModel(response.statusCode(), "See More", response.headers().map().get("Location").toString());
+        return new VposResponse(response.statusCode(), "See More", response.headers().map().get("Location").toString());
       case 404:
-        return new VposViewModel(response.statusCode(), "Not Found", "Empty");
+        return new VposResponse(response.statusCode(), "Not Found", "Empty");
       case 400:
-        return new VposViewModel(response.statusCode(), "Bad Request", response.body());
+        return new VposResponse(response.statusCode(), "Bad Request", response.body());
       case 401:
-        return new VposViewModel(response.statusCode(), "Unauthorized", response.body());
+        return new VposResponse(response.statusCode(), "Unauthorized", response.body());
       default:
-        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contact administrator for help");
+        return new VposResponse(response.statusCode(), "Unknown Error", "Please contact administrator for help");
     }
   }
 
@@ -329,7 +329,7 @@ public class Vpos {
     return String.valueOf(this.baseUrl);
   }
 
-  public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
+  public String getTransactionId(VposResponse object) throws IOException, InterruptedException {
       var location = object.getData();
       var endLocationIndex = location.length() - 1;
       return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);

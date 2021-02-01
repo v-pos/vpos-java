@@ -1,6 +1,6 @@
 package ao.vpos.vpos.model;
 
-public interface ViewModel<T> {
+public interface Response<T> {
     Integer getStatusCode();
     String getMessage();
     T getData();

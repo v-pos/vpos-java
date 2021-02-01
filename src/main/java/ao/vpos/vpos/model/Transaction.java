@@ -1,6 +1,6 @@
 package ao.vpos.vpos.model;
 
-public class Transaction implements ViewModel<TransactionResponse>{
+public class Transaction implements Response<TransactionResponse> {
     private final Integer statusCode;
     private final String message;
     private final TransactionResponse data;
