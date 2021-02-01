@@ -1,35 +1,20 @@
 package ao.vpos.vpos.model;
 
-public class Request implements BaseResponse<RequestResponse>, LocationViewModel {
-    private final Integer statusCode;
-    private final String message;
-    private final RequestResponse data;
-    private final String location;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public Request(Integer statusCode, String message, RequestResponse data, String location) {
-        this.statusCode = statusCode;
-        this.message = message;
-        this.data = data;
-        this.location = location;
-    }
+public class Request {
 
-    @Override
-    public Integer getStatusCode() {
-        return statusCode;
-    }
+	@JsonProperty("eta")
+	private double eta;
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@JsonProperty("inserted_at")
+	private String insertedAt;
 
-    @Override
-    public RequestResponse getData() {
-        return data;
-    }
+	public double getEta(){
+		return eta;
+	}
 
-    @Override
-    public String getLocation() {
-        return location;
-    }
+	public String getInsertedAt(){
+		return insertedAt;
+	}
 }
