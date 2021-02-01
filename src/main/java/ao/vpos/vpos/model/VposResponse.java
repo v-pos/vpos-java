@@ -1,7 +1,7 @@
 package ao.vpos.vpos.model;
 
 
-public class VposResponse implements Response<String> {
+public class VposResponse implements BaseResponse<String> {
   private Integer code;
   private String message;
   private String data;

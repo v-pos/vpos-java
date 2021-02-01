@@ -85,7 +85,7 @@ public class Vpos {
     return returnObject(response);
   }
 
-  public Response getTransaction(String transactionId) throws IOException, InterruptedException {
+  public BaseResponse getTransaction(String transactionId) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     HttpRequest request = HttpRequest.newBuilder()
@@ -268,7 +268,7 @@ public class Vpos {
   }
 
   // api poll status methods
-  public Response getRequest(String requestId) throws IOException, InterruptedException {
+  public BaseResponse getRequest(String requestId) throws IOException, InterruptedException {
     var client = HttpClient.newHttpClient();
 
     var request = HttpRequest.newBuilder()

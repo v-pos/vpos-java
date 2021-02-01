@@ -1,6 +1,6 @@
 package ao.vpos.vpos.model;
 
-public class Request implements Response<RequestResponse>, LocationViewModel {
+public class Request implements BaseResponse<RequestResponse>, LocationViewModel {
     private final Integer statusCode;
     private final String message;
     private final RequestResponse data;
