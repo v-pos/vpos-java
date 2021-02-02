@@ -24,6 +24,7 @@ public class Vpos {
 
   private final URL baseUrl;
   private String token;
+  private final HttpClient client = HttpClient.newHttpClient();
 
   private static final int BEGIN_LOCATION_INDEX = 18;
 
@@ -71,8 +72,6 @@ public class Vpos {
 
   // api methods
   public VposViewModel getTransactions() throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
     HttpRequest request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
@@ -86,8 +85,6 @@ public class Vpos {
   }
 
   public ViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
     HttpRequest request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
@@ -108,9 +105,7 @@ public class Vpos {
 
   // api payment methods
   public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-
     body.put("type", "payment");
     body.put("pos_id", System.getenv("GPO_POS_ID"));
     body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
@@ -135,9 +130,7 @@ public class Vpos {
   }
 
   public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-
     body.put("type", "payment");
     body.put("pos_id", posID);
     body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
@@ -162,9 +155,7 @@ public class Vpos {
   }
 
   public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
     var body = new HashMap<>();
-
     body.put("type", "payment");
     body.put("pos_id", posID);
     body.put("callback_url", paymentCallbackUrl);
@@ -190,8 +181,6 @@ public class Vpos {
 
   // api refund methods
   public VposViewModel newRefund(String parentTransactionId) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
@@ -216,8 +205,6 @@ public class Vpos {
   }
 
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
@@ -242,8 +229,6 @@ public class Vpos {
   }
 
   public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
