@@ -7,6 +7,7 @@ import ao.vpos.vpos.model.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -18,10 +19,16 @@ public class VposTest {
     public void itShouldNotGetAllTransactionsIfTokenInvalid() throws IOException, InterruptedException {
         var merchant = new Vpos();
         merchant.setToken("invalid-token");
-        var response = merchant.getTransactions();
+        ApiException exception = null;
+        Response<List<Transaction>> response = null;
+        try {
+            response = merchant.getTransactions();
+        } catch (ApiException e) {
+            exception = e;
+        }
 
-        assertEquals(401, response.getStatusCode());
-        assertEquals("\"Unauthorized\"", response.getData());
+        assertEquals(401, exception.getStatus());
+        assertEquals("\"Unauthorized\"", exception.getResponseBody());
     }
 
     @Test
@@ -38,7 +45,7 @@ public class VposTest {
 
         assertNotNull(exception);
         assertEquals(404, exception.getStatus());
-        assertEquals(null, exception.getResponseBody());
+        assertEquals(null, exception.getMessage());
     }
 
     @Test
@@ -68,7 +75,7 @@ public class VposTest {
         }
 
         assertEquals(400, exception.getStatus());
-        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", exception.getMessage());
+        assertEquals("{\"errors\":{\"mobile\":[\"has invalid format\"]}}", exception.getResponseBody());
     }
 
     @Test
@@ -83,7 +90,7 @@ public class VposTest {
         }
 
         assertEquals(400, exception.getStatus());
-        assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", exception.getMessage());
+        assertEquals("{\"errors\":{\"amount\":[\"is invalid\"]}}", exception.getResponseBody());
     }
 
     @Test
@@ -116,7 +123,7 @@ public class VposTest {
         }
 
         assertEquals(401, exception.getStatus());
-        assertEquals("\"Unauthorized\"", exception.getMessage());
+        assertEquals("\"Unauthorized\"", exception.getResponseBody());
     }
 
     // POSITIVES
@@ -138,12 +145,18 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldGetAllTransactions() throws IOException, InterruptedException {
+    public void itShouldGetAllTransactions() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.getTransactions();
         assertEquals(200, response.getStatusCode());
         assertEquals("OK", response.getMessage());
-        assertNotNull(response.getData());
+        assertNotNull(response.getData().get(0).getAmount());
+        assertNotNull(response.getData().get(0).getMobile());
+        assertNotNull(response.getData().get(0).getId());
+        assertNotNull(response.getData().get(0).getStatus());
+        assertNotNull(response.getData().get(0).getPosId());
+        assertNotNull(response.getData().get(0).getType());
+        assertNotNull(response.getData().get(0).getStatusDatetime());
     }
 
     @Test
