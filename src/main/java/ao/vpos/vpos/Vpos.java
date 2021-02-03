@@ -1,8 +1,12 @@
 package ao.vpos.vpos;
 
+import ao.vpos.vpos.exception.ApiException;
 import ao.vpos.vpos.model.*;
 import co.ao.nextbss.Yoru;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -15,16 +19,17 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.List;
 import java.util.UUID;
 
 public class Vpos {
   private static final String PRODUCTION_BASE_URL = "https://api.vpos.ao";
   private static final String SANDBOX_BASE_URL = "https://sandbox.vpos.ao";
+  private final HttpClient client = HttpClient.newHttpClient();
 
   private final URL baseUrl;
   private String token;
-  private final HttpClient client = HttpClient.newHttpClient();
 
   private static final int BEGIN_LOCATION_INDEX = 18;
 
@@ -71,7 +76,7 @@ public class Vpos {
   }
 
   // api methods
-  public VposViewModel getTransactions() throws IOException, InterruptedException {
+  public Response<List<Transaction>> getTransactions() throws IOException, InterruptedException, ApiException {
     HttpRequest request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
@@ -81,10 +86,37 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    return returnObject(response);
+    if (response.statusCode() == 200) {
+      return new Response<List<Transaction>>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "OK";
+        }
+
+        @Override
+        public List<Transaction> getData() throws IOException {
+          CollectionType typeReference =
+                  TypeFactory.defaultInstance().constructCollectionType(List.class, Transaction.class);
+          ObjectMapper objectMapper = new ObjectMapper();
+          return objectMapper.readValue(response.body(), typeReference);
+        }
+
+        @Override
+        public String getLocation() {
+          return null;
+        }
+      };
+    } else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
-  public ViewModel getTransaction(String transactionId) throws IOException, InterruptedException {
+  public Response<Transaction> getTransaction(String transactionId) throws IOException, InterruptedException, ApiException {
     HttpRequest request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
@@ -96,15 +128,38 @@ public class Vpos {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     if (response.statusCode() == 200) {
-      Yoru<TransactionResponse> converter = new Yoru();
-      TransactionResponse transactionResponse = converter.fromJson(response.body(), TransactionResponse.class);
-      return new Transaction(200, "OK", transactionResponse);
+      Yoru<Transaction> converter = new Yoru();
+      Transaction transaction = converter.fromJson(response.body(), Transaction.class);
+
+      return new Response<Transaction>() {
+
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "OK";
+        }
+
+        @Override
+        public Transaction getData() {
+          return transaction;
+        }
+
+        @Override
+        public String getLocation() {
+          return null;
+        }
+      };
+    } else {
+        throw new ApiException(response.statusCode(), response.body());
     }
-    return returnObject(response);
   }
 
   // api payment methods
-  public VposViewModel newPayment(String mobile, String amount) throws IOException, InterruptedException {
+  public Response newPayment(String mobile, String amount) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "payment");
     body.put("pos_id", System.getenv("GPO_POS_ID"));
@@ -125,11 +180,35 @@ public class Vpos {
       .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    if (response.statusCode() == 202) {
+      return new Response<String>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
 
-    return returnObject(response);
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public String getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    }
+    else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
-  public VposViewModel newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException {
+  public Response newPayment(String mobile, String amount, String posID) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "payment");
     body.put("pos_id", posID);
@@ -151,10 +230,35 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    return returnObject(response);
+    if (response.statusCode() == 202) {
+      return new Response<String>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public String getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    }
+    else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
-  public VposViewModel newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException {
+  public Response newPayment(String mobile, String amount, String posID, String paymentCallbackUrl) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "payment");
     body.put("pos_id", posID);
@@ -176,11 +280,36 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    return returnObject(response);
+    if (response.statusCode() == 202) {
+      return new Response<String>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public String getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    }
+    else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
   // api refund methods
-  public VposViewModel newRefund(String parentTransactionId) throws IOException, InterruptedException {
+  public Response newRefund(String parentTransactionId) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
@@ -201,10 +330,34 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    return returnObject(response);
+    if (response.statusCode() == 202) {
+      return new Response() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public Object getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    } else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
-  public VposViewModel newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException {
+  public Response newRefund(String parentTransactionId, String supervisorCard) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
@@ -225,11 +378,35 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    return returnObject(response);
+    if (response.statusCode() == 202) {
+      return new Response() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public Object getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    } else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
-  public VposViewModel newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException {
-    var body = new HashMap<>();
+  public Response newRefund(String parentTransactionId, String supervisorCard, String refundCallbackUrl) throws IOException, InterruptedException, ApiException {
+   var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
     body.put("callback_url", refundCallbackUrl);
@@ -249,13 +426,35 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    return returnObject(response);
+    if (response.statusCode() == 202) {
+      return new Response() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "Accepted";
+        }
+
+        @Override
+        public Object getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    } else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
   // api poll status methods
-  public ViewModel getRequest(String requestId) throws IOException, InterruptedException {
-    var client = HttpClient.newHttpClient();
-
+  public Response<Request> getRequest(String requestId) throws IOException, InterruptedException, ApiException {
     var request = HttpRequest.newBuilder()
       .GET()
       .header("Accept", "application/json")
@@ -266,40 +465,60 @@ public class Vpos {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     if (response.statusCode() == 200) {
-      Yoru<RequestResponse> converter = new Yoru<>();
-      var requestResponse = converter.fromJson(response.body(), RequestResponse.class);
-      return new Request(200, "OK", requestResponse, null);
+      Yoru<Request> converter = new Yoru<>();
+      var requestResponse = converter.fromJson(response.body(), Request.class);
+      return new Response<Request>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
+
+        @Override
+        public String getMessage() {
+          return "OK";
+        }
+
+        @Override
+        public Request getData() {
+          return requestResponse;
+        }
+
+        @Override
+        public String getLocation() {
+          return null;
+        }
+      };
     }
 
     if (response.statusCode() == 303) {
-      return new Request(303, "See More", null, getLocation(response));
-    }
+      return new Response<Request>() {
+        @Override
+        public Integer getStatusCode() {
+          return response.statusCode();
+        }
 
-    return returnObject(response);
+        @Override
+        public String getMessage() {
+          return "See More";
+        }
+
+        @Override
+        public Request getData() {
+          return null;
+        }
+
+        @Override
+        public String getLocation() {
+          return response.headers().map().get("Location").toString();
+        }
+      };
+    } else {
+      throw new ApiException(response.statusCode(), response.body());
+    }
   }
 
   private String getLocation(HttpResponse<String> response) {
     return response.headers().map().get("Location").toString();
-  }
-
-  // Helpers
-  private VposViewModel returnObject(HttpResponse<String> response) throws JsonProcessingException {
-    switch(response.statusCode()) {
-      case 200:
-        return new VposViewModel(response.statusCode(), "OK", response.body());
-      case 202:
-        return new VposViewModel(response.statusCode(), "Accepted", response.headers().map().get("Location").toString());
-      case 303:
-        return new VposViewModel(response.statusCode(), "See More", response.headers().map().get("Location").toString());
-      case 404:
-        return new VposViewModel(response.statusCode(), "Not Found", "Empty");
-      case 400:
-        return new VposViewModel(response.statusCode(), "Bad Request", response.body());
-      case 401:
-        return new VposViewModel(response.statusCode(), "Unauthorized", response.body());
-      default:
-        return new VposViewModel(response.statusCode(), "Unknown Error", "Please contact administrator for help");
-    }
   }
 
   private String getToken() {
@@ -314,9 +533,8 @@ public class Vpos {
     return String.valueOf(this.baseUrl);
   }
 
-  public String getTransactionId(VposViewModel object) throws IOException, InterruptedException {
-      var location = object.getData();
-      var endLocationIndex = location.length() - 1;
-      return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
+  public String getTransactionId(String location) throws IOException, InterruptedException {
+    var endLocationIndex = location.length() - 1;
+    return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
   }
 }

@@ -73,7 +73,7 @@ Retrieves a transaction given a valid transaction ID.
 
 ```java
 var merchant = new Vpos();
-var transaction = (Transaction) merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
+var transaction = merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
@@ -113,7 +113,7 @@ Note: The `request_id` in this context is essentially the `transaction_id` of an
 
 ```java
 var merchant = new Vpos();
-var request = (Request) merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
+var request = merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
 ```
 
 | Argument | Description | Type |
