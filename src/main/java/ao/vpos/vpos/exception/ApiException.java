@@ -3,14 +3,20 @@ package ao.vpos.vpos.exception;
 import java.net.http.HttpHeaders;
 
 public class ApiException extends Exception {
-    private final String message;
-    private final int status;
+    private String message;
+    private int status;
     private HttpHeaders headers;
     private String responseBody;
 
-    public ApiException(int status, String message) {
+    public ApiException(int status, String responseBody) {
+        this.status = status;
+        this.responseBody = responseBody;
+    }
+
+    public ApiException(int status, String message, String responseBody) {
         this.status = status;
         this.message = message;
+        this.responseBody = responseBody;
     }
 
     public ApiException(String message, int status, HttpHeaders headers, String responseBody) {
