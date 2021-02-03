@@ -25,7 +25,7 @@
     </repository>
   </distributionManagement>
 
-  <repositories>	
+  <repositories>
     <repository>
      	<id>jitpack.io</id>
      	<url>https://jitpack.io</url>
@@ -33,6 +33,13 @@
   </repositories>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.11.2</version>
+    </dependency>
+
     <dependency>
         <groupId>com.github.nextbss</groupId>
         <artifactId>yoru</artifactId>
@@ -90,7 +97,7 @@
       <artifactId>guava</artifactId>
       <version>30.0-jre</version>
     </dependency>
-    
+
     <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
     <dependency>
         <groupId>org.junit.jupiter</groupId>
