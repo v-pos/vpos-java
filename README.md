@@ -54,6 +54,30 @@ The constructor will be responsible for acquiring the tokens defined above to in
 var merchant = new Vpos();
 ```
 
+*Note:* All `Vpos()` methods return a common response object called `Response`.
+
+This type is a wrapper for successful server response.
+
+It has the following methods that allow you to acquire the necessary response data.
+
+| Method | Description | Type |
+| --- | --- | --- 
+| `getStatusCode()` | Get status code from `Response` | `int` | 
+| `getData` | Get data from response, if available | `T` | 
+| `getMessage()` | Get the response message | `String` | 
+| `getLocation()` | Get the Location of a Transaction, if applicable | `String` | 
+
+In the case of an unsuccessful response eg. authorization errors (401), bad request(401) or any other error, an
+`ApiException` will be thrown so that your system can handle the error accordingly. 
+
+```java
+try {
+     var response = merchant.newPayment("900111222", "199.99");
+} catch (ApiException e) {
+    
+}
+```
+
 Given you have set up all the environment variables above with the correct information, you will now
 be able to authenticate and communicate effectively with our API using this library. 
 
