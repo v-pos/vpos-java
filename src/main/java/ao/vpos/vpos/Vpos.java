@@ -212,7 +212,7 @@ public class Vpos {
     var body = new HashMap<>();
     body.put("type", "payment");
     body.put("pos_id", posID);
-    body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+    body.put("callback_url", System.getenv("PAYMENT_CALLBACK_URL"));
     body.put("mobile", mobile);
     body.put("amount", amount);
 
@@ -313,7 +313,7 @@ public class Vpos {
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
-    body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+    body.put("callback_url", System.getenv("REFUND_CALLBACK_URL"));
     body.put("parent_transaction_id", parentTransactionId);
 
     ObjectMapper objectMapper = new ObjectMapper();
