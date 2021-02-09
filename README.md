@@ -28,7 +28,7 @@ Add the package dependencies to the `dependencies` element of your project pom.x
   <dependency>
     <groupId>ao.vpos.vpos</groupId>
     <artifactId>vpos</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </dependency>
 </dependencies>
 ```
