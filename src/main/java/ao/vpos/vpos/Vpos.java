@@ -51,7 +51,9 @@ public class Vpos {
     this.refundCallbackUrl = System.getenv("REFUND_CALLBACK_URL");
 
     try {
-      if (System.getenv("VPOS_ENVIRONMENT").equalsIgnoreCase("prd")) {
+      String environmentValue = System.getenv("VPOS_ENVIRONMENT");
+      if (environmentValue != null &&
+              environmentValue.equalsIgnoreCase("prd")) {
         this.baseUrl = new URL(PRODUCTION_BASE_URL);
       } else {
         this.baseUrl = new URL(SANDBOX_BASE_URL);
