@@ -17,8 +17,7 @@ public class VposTest {
     // NEGATIVES
     @Test
     public void itShouldNotGetAllTransactionsIfTokenInvalid() throws IOException, InterruptedException {
-        var merchant = new Vpos();
-        merchant.setToken("invalid-token");
+        var merchant = new Vpos("invalid-token");
         ApiException exception = null;
         Response<List<Transaction>> response = null;
         try {
@@ -51,8 +50,7 @@ public class VposTest {
     @Test
     public void itShouldNotGetSingleTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var transactionId = UUID.randomUUID().toString();
-        var merchant = new Vpos();
-        merchant.setToken("invalid-token");
+        var merchant = new Vpos("invalid-token");
         ApiException exception = null;
         try {
             Response<Transaction> response = merchant.getTransaction(transactionId);
@@ -95,8 +93,7 @@ public class VposTest {
 
     @Test
     public void itShouldNotCreateNewPaymentTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
-        var merchant = new Vpos();
-        merchant.setToken("invalid-token");
+        var merchant = new Vpos("invalid-token");
         Response<String> response = null;
         ApiException exception = null;
         try {
@@ -112,8 +109,7 @@ public class VposTest {
     public void itShouldNotCreateNewRefundTransactionIfTokenIsInvalid() throws IOException, InterruptedException {
         var transactionId = "non-existent-transaction-id";
 
-        var merchant = new Vpos();
-        merchant.setToken("invalid-token");
+        var merchant = new Vpos("invalid-token");
         ApiException exception = null;
         Response response = null;
         try {
