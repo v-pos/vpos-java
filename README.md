@@ -1,7 +1,7 @@
 # vPOS Java
 
 ![Build status](https://github.com/nextbss/vpos-java/workflows/Deploy%20to%20Main%20Branch/badge.svg)
-[![](https://img.shields.io/badge/nextbss-opensource-blue.svg)](https://www.nextbss.co.ao)
+[![](https://img.shields.io/badge/vPOS-OpenSource-blue.svg)](https://www.vpos.ao)
 
 This java library helps you easily interact with the vPOS API,
 Allowing merchants apps/services to request a payment from a client through his/her mobile phone number.
@@ -33,26 +33,19 @@ Add the package dependencies to the `dependencies` element of your project pom.x
 </dependencies>
 ```
 
-### Configuration
-This java library requires you set up the following environment variables on your machine before
-interacting with the API using this library:
+## Use
+### Create Instance
 
-| Variable | Description | Required |
-| --- | --- | --- |
-| `GPO_POS_ID` | The Point of Sale ID provided by EMIS | true |
-| `GPO_SUPERVISOR_CARD` | The Supervisor card ID provided by EMIS | true |
-| `MERCHANT_VPOS_TOKEN` | The API token provided by vPOS | true |
-| `PAYMENT_CALLBACK_URL` | The URL that will handle payment notifications | false |
-| `REFUND_CALLBACK_URL` | The URL that will handle refund notifications | false |
-| `VPOS_ENVIRONMENT` | The vPOS environment, leave empty for `sandbox` mode and use `"prd"` for `production`.  | false |
-
-Don't have this information? [Talk to us](suporte@vpos.ao)
-
-Create an instance of `Vpos` (make sure to define the environment variables above to) to interact with our API. 
-The constructor will be responsible for acquiring the tokens defined above to interact with the API. 
 ```java
+// use the default environment variables option
 var merchant = new Vpos();
+
+# or use optional arguments option
+var merchant = new Vpos('your_token_here');
 ```
+
+Create an instance of `Vpos` (make sure to define the environment variables above to) to interact with our API.
+The constructor will be responsible for acquiring the tokens defined above to interact with the API.
 
 *Note:* All `Vpos()` methods return a common response object called `Response`.
 
@@ -66,6 +59,33 @@ It has the following methods that allow you to acquire the necessary response da
 | `getData` | Get data from response, if available | `T` | 
 | `getMessage()` | Get the response message | `String` | 
 | `getLocation()` | Get the Location of a Transaction, if applicable | `String` | 
+
+### Configuration
+This java library requires you set up the following environment variables on your machine before
+interacting with the API using this library:
+
+| Variable | Description | Required |
+| --- | --- | --- |
+| `GPO_POS_ID` | The Point of Sale ID provided by EMIS | true |
+| `GPO_SUPERVISOR_CARD` | The Supervisor card ID provided by EMIS | true |
+| `MERCHANT_VPOS_TOKEN` | The API token provided by vPOS | true |
+| `PAYMENT_CALLBACK_URL` | The URL that will handle payment notifications | false |
+| `REFUND_CALLBACK_URL` | The URL that will handle refund notifications | false |
+| `VPOS_ENVIRONMENT` | The vPOS environment, leave empty for `sandbox` mode and use `"prd"` for `production`.  | false |
+
+or using one of the optional arguments
+
+#### Optional Arguments
+| Argument | Description | Type |
+| --- | --- | --- |
+| `token` | Token generated at [vPOS](https://merchant.vpos.ao) dashboard | `string`
+| `pos_id` | Merchant POS ID provided by EMIS | `string`
+| `supervisor_card` | Merchant Supervisor Card number provided by EMIS | `string`
+| `payment_callback_url` | Merchant application JSON endpoint to accept the callback payment response | `string`
+| `refund_callback_url` | Merchant application JSON endpoint to accept the callback refund response | `string`
+| `environment` | The vPOS environment, leave empty for `sandbox` mode and use `"PRD"` for `production`.  | `string` |
+
+Don't have this information? [Talk to us](suporte@vpos.ao)
 
 In the case of an unsuccessful response eg. authorization errors (401), bad request(401) or any other error, an
 `ApiException` will be thrown so that your system can handle the error accordingly. 
@@ -87,7 +107,6 @@ The next section will show the various payment actions that can be performed by 
 This endpoint retrieves all transactions.
 
 ```java
-var merchant = new Vpos();
 var transactions = merchant.getTransactions();
 ```
 
@@ -96,7 +115,6 @@ Retrieves a transaction given a valid transaction ID.
 
 
 ```java
-var merchant = new Vpos();
 var transaction = merchant.getTransaction("1jHXEbRTIbbwaoJ6w86");
 ```
 
@@ -109,7 +127,6 @@ Creates a new payment transaction given a valid mobile number associated with a 
 and a valid amount.
 
 ```java
-var merchant = new Vpos();
 var transaction = merchant.newPayment("900111222", "123.45");
 ```
 
@@ -122,7 +139,6 @@ var transaction = merchant.newPayment("900111222", "123.45");
 Given an existing `parent_transaction_id`, request a refund.
 
 ```java
-var merchant = new Vpos();
 var transaction = merchant.newRefund("1jHXEbRTIbbwaoJ6w86");
 ```
 
@@ -136,7 +152,6 @@ Poll the status of a transaction given a valid `request_id`.
 Note: The `request_id` in this context is essentially the `transaction_id` of an existing request. 
 
 ```java
-var merchant = new Vpos();
 var request = merchant.getRequest("1jHXEbRTIbbwaoJ6w86");
 ```
 
