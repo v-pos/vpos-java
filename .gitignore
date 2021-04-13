@@ -1,4 +1,4 @@
 App.java
 target/*
 .idea
-/vpos.iml
+*.iml

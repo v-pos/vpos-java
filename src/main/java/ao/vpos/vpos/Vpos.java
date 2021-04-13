@@ -1,25 +1,25 @@
 package ao.vpos.vpos;
 
 import ao.vpos.vpos.exception.ApiException;
-import ao.vpos.vpos.model.*;
+import ao.vpos.vpos.model.Request;
+import ao.vpos.vpos.model.Response;
+import ao.vpos.vpos.model.Transaction;
 import co.ao.nextbss.Yoru;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.MalformedURLException;
-
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,8 +28,12 @@ public class Vpos {
   private static final String SANDBOX_BASE_URL = "https://sandbox.vpos.ao";
   private final HttpClient client = HttpClient.newHttpClient();
 
-  private final URL baseUrl;
+  private URL baseUrl;
   private String token;
+  private String posId;
+  private String supervisorCard;
+  private String paymentCallbackUrl;
+  private String refundCallbackUrl;
 
   private static final int BEGIN_LOCATION_INDEX = 18;
 
@@ -39,40 +43,75 @@ public class Vpos {
   }
 
   // constructors
-  public Vpos() throws IOException, InterruptedException {
-      try{
-        this.token = System.getenv("MERCHANT_VPOS_TOKEN");
+  public Vpos() {
+    this.token = System.getenv("MERCHANT_VPOS_TOKEN");
+    this.posId = System.getenv("GPO_POS_ID");
+    this.supervisorCard = System.getenv("GPO_SUPERVISOR_CARD");
+    this.paymentCallbackUrl = System.getenv("PAYMENT_CALLBACK_URL");
+    this.refundCallbackUrl = System.getenv("REFUND_CALLBACK_URL");
+
+    try {
+      String environmentValue = System.getenv("VPOS_ENVIRONMENT");
+      if (environmentValue != null &&
+              environmentValue.equalsIgnoreCase("prd")) {
+        this.baseUrl = new URL(PRODUCTION_BASE_URL);
+      } else {
         this.baseUrl = new URL(SANDBOX_BASE_URL);
-      } catch(MalformedURLException e) {
-          throw new RuntimeException(e);
       }
-  }
-
-  public Vpos(Environment environment) throws IOException, InterruptedException  {
-    try{
-      this.token = System.getenv("MERCHANT_VPOS_TOKEN");
-      this.baseUrl = (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
-    } catch(MalformedURLException e) {
+    } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public Vpos(String newToken) throws IOException, InterruptedException  {
-    try{
-      this.token = newToken;
-      this.baseUrl = new URL(SANDBOX_BASE_URL);
-    } catch(MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+  public Vpos(@Nonnull Environment environment) {
+    this();
+    this.token = System.getenv("MERCHANT_VPOS_TOKEN");
+    this.baseUrl = getBaseUrlFromEnvironment(environment);
   }
 
-  public Vpos(String newToken, Environment environment) throws IOException, InterruptedException {
-    try{
-      this.token = newToken;
-      this.baseUrl = (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
-    } catch(MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+  public Vpos(@Nonnull String newToken) {
+    this();
+    this.token = newToken;
+  }
+
+  public Vpos(@Nonnull Environment environment, @Nonnull String newToken) {
+    this(newToken);
+    this.baseUrl = getBaseUrlFromEnvironment(environment);
+  }
+
+  public Vpos(@Nonnull Environment environment, @Nonnull String newToken, @Nonnull String posId) {
+    this(environment, newToken);
+    this.posId = posId;
+  }
+
+  public Vpos(
+          @Nonnull Environment environment,
+          @Nonnull String newToken,
+          @Nonnull String posId,
+          @Nonnull String supervisorCard) {
+    this(environment, newToken, posId);
+    this.supervisorCard = supervisorCard;
+  }
+
+  public Vpos(
+          @Nonnull Environment environment,
+          @Nonnull String newToken,
+          @Nonnull String posId,
+          @Nonnull String supervisorCard,
+          @Nonnull String paymentCallbackUrl) {
+    this(environment, newToken, posId, supervisorCard);
+    this.paymentCallbackUrl = paymentCallbackUrl;
+  }
+
+  public Vpos(
+          @Nonnull Environment environment,
+          @Nonnull String newToken,
+          @Nonnull String posId,
+          @Nonnull String supervisorCard,
+          @Nonnull String paymentCallbackUrl,
+          @Nonnull String refundCallbackUrl) {
+    this(environment, newToken, posId, supervisorCard, paymentCallbackUrl);
+    this.refundCallbackUrl = refundCallbackUrl;
   }
 
   // api methods
@@ -162,8 +201,8 @@ public class Vpos {
   public Response newPayment(String mobile, String amount) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "payment");
-    body.put("pos_id", System.getenv("GPO_POS_ID"));
-    body.put("callback_url", System.getenv("VPOS_PAYMENT_CALLBACK_URL"));
+    body.put("pos_id", posId);
+    body.put("callback_url", paymentCallbackUrl);
     body.put("mobile", mobile);
     body.put("amount", amount);
 
@@ -212,7 +251,7 @@ public class Vpos {
     var body = new HashMap<>();
     body.put("type", "payment");
     body.put("pos_id", posID);
-    body.put("callback_url", System.getenv("PAYMENT_CALLBACK_URL"));
+    body.put("callback_url", paymentCallbackUrl);
     body.put("mobile", mobile);
     body.put("amount", amount);
 
@@ -312,8 +351,8 @@ public class Vpos {
   public Response newRefund(String parentTransactionId) throws IOException, InterruptedException, ApiException {
     var body = new HashMap<>();
     body.put("type", "refund");
-    body.put("supervisor_card", System.getenv("GPO_SUPERVISOR_CARD"));
-    body.put("callback_url", System.getenv("REFUND_CALLBACK_URL"));
+    body.put("supervisor_card", supervisorCard);
+    body.put("callback_url", refundCallbackUrl);
     body.put("parent_transaction_id", parentTransactionId);
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -361,7 +400,7 @@ public class Vpos {
     var body = new HashMap<>();
     body.put("type", "refund");
     body.put("supervisor_card", supervisorCard);
-    body.put("callback_url", System.getenv("VPOS_REFUND_CALLBACK_URL"));
+    body.put("callback_url", refundCallbackUrl);
     body.put("parent_transaction_id", parentTransactionId);
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -536,5 +575,14 @@ public class Vpos {
   public String getTransactionId(String location) throws IOException, InterruptedException {
     var endLocationIndex = location.length() - 1;
     return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
+  }
+
+  @NotNull
+  private URL getBaseUrlFromEnvironment(Environment environment) {
+    try {
+      return (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
