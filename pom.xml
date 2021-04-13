@@ -6,7 +6,7 @@
 
   <groupId>ao.vpos.vpos</groupId>
   <artifactId>vpos</artifactId>
-  <version>0.1.1</version>
+  <version>1.0.0</version>
 
   <name>vpos</name>
   <url>https://github.com/nextbss/vpos-java</url>
@@ -20,8 +20,8 @@
   <distributionManagement>
     <repository>
       <id>github</id>
-      <name>GitHub NEXTBSS Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/nextbss/vpos-java</url>
+      <name>GitHub vPOS Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/v-pos/vpos-java</url>
     </repository>
   </distributionManagement>
 
