@@ -1,6 +1,6 @@
 # vPOS Java
 
-![Build status](https://github.com/nextbss/vpos-java/workflows/Deploy%20to%20Main%20Branch/badge.svg)
+[![Build](https://github.com/v-pos/vpos-java/actions/workflows/maven.yml/badge.svg)](https://github.com/v-pos/vpos-java/actions/workflows/maven.yml)
 [![](https://img.shields.io/badge/vPOS-OpenSource-blue.svg)](https://www.vpos.ao)
 
 This java library helps you easily interact with the vPOS API,
@@ -40,7 +40,7 @@ Add the package dependencies to the `dependencies` element of your project pom.x
 // use the default environment variables option
 var merchant = new Vpos();
 
-# or use optional arguments option
+// or use optional arguments option
 var merchant = new Vpos('your_token_here');
 ```
 
@@ -91,11 +91,7 @@ In the case of an unsuccessful response eg. authorization errors (401), bad requ
 `ApiException` will be thrown so that your system can handle the error accordingly. 
 
 ```java
-try {
-     var response = merchant.newPayment("900111222", "199.99");
-} catch (ApiException e) {
-    
-}
+var response = merchant.newPayment("900111222", "199.99");
 ```
 
 Given you have set up all the environment variables above with the correct information, you will now
