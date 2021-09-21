@@ -71,7 +71,6 @@ interacting with the API using this library:
 | `MERCHANT_VPOS_TOKEN` | The API token provided by vPOS | true |
 | `PAYMENT_CALLBACK_URL` | The URL that will handle payment notifications | false |
 | `REFUND_CALLBACK_URL` | The URL that will handle refund notifications | false |
-| `VPOS_ENVIRONMENT` | The vPOS environment, leave empty for `sandbox` mode and use `"prd"` for `production`.  | false |
 
 or using one of the optional arguments
 
@@ -83,7 +82,6 @@ or using one of the optional arguments
 | `supervisor_card` | Merchant Supervisor Card number provided by EMIS | `string`
 | `payment_callback_url` | Merchant application JSON endpoint to accept the callback payment response | `string`
 | `refund_callback_url` | Merchant application JSON endpoint to accept the callback refund response | `string`
-| `environment` | The vPOS environment, leave empty for `sandbox` mode and use `"PRD"` for `production`.  | `string` |
 
 Don't have this information? [Talk to us](suporte@vpos.ao)
 
@@ -98,13 +96,6 @@ Given you have set up all the environment variables above with the correct infor
 be able to authenticate and communicate effectively with our API using this library. 
 
 The next section will show the various payment actions that can be performed by you, the merchant.
-
-### Get all Transactions
-This endpoint retrieves all transactions.
-
-```java
-var transactions = merchant.getTransactions();
-```
 
 ### Get a specific Transaction
 Retrieves a transaction given a valid transaction ID.
