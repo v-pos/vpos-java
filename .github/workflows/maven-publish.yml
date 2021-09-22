@@ -27,8 +27,19 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+      env:
+        MERCHANT_VPOS_TOKEN: ${{ secrets.MERCHANT_VPOS_TOKEN }}
+        GPO_POS_ID: ${{ secrets.GPO_POS_ID }}
+        GPO_SUPERVISOR_CARD: ${{ secrets.GPO_SUPERVISOR_CARD }}
+        PAYMENT_CALLBACK_URL: ${{ secrets.PAYMENT_CALLBACK_URL }}
+        REFUND_CALLBACK_URL: ${{ secrets.REFUND_CALLBACK_URL }}
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
+        MERCHANT_VPOS_TOKEN: ${{ secrets.MERCHANT_VPOS_TOKEN }}
+        GPO_POS_ID: ${{ secrets.GPO_POS_ID }}
+        GPO_SUPERVISOR_CARD: ${{ secrets.GPO_SUPERVISOR_CARD }}
+        PAYMENT_CALLBACK_URL: ${{ secrets.PAYMENT_CALLBACK_URL }}
+        REFUND_CALLBACK_URL: ${{ secrets.REFUND_CALLBACK_URL }}
