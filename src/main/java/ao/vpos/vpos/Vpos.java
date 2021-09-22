@@ -8,10 +8,7 @@ import co.ao.nextbss.Yoru;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -24,8 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Vpos {
-  private static final String PRODUCTION_BASE_URL = "https://api.vpos.ao";
-  private static final String SANDBOX_BASE_URL = "https://sandbox.vpos.ao";
+  private static final String HOST = "https://vpos.ao";
   private final HttpClient client = HttpClient.newHttpClient();
 
   private URL baseUrl;
@@ -37,80 +33,52 @@ public class Vpos {
 
   private static final int BEGIN_LOCATION_INDEX = 18;
 
-  public enum Environment {
-    PRODUCTION,
-    SANDBOX
-  }
-
   // constructors
-  public Vpos() {
+  public Vpos() throws MalformedURLException {
     this.token = System.getenv("MERCHANT_VPOS_TOKEN");
     this.posId = System.getenv("GPO_POS_ID");
     this.supervisorCard = System.getenv("GPO_SUPERVISOR_CARD");
     this.paymentCallbackUrl = System.getenv("PAYMENT_CALLBACK_URL");
     this.refundCallbackUrl = System.getenv("REFUND_CALLBACK_URL");
-
-    try {
-      String environmentValue = System.getenv("VPOS_ENVIRONMENT");
-      if (environmentValue != null &&
-              environmentValue.equalsIgnoreCase("prd")) {
-        this.baseUrl = new URL(PRODUCTION_BASE_URL);
-      } else {
-        this.baseUrl = new URL(SANDBOX_BASE_URL);
-      }
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+    this.baseUrl = new URL(HOST);
   }
 
-  public Vpos(@Nonnull Environment environment) {
-    this();
-    this.token = System.getenv("MERCHANT_VPOS_TOKEN");
-    this.baseUrl = getBaseUrlFromEnvironment(environment);
-  }
-
-  public Vpos(@Nonnull String newToken) {
+  public Vpos(@Nonnull String newToken) throws MalformedURLException {
     this();
     this.token = newToken;
+    this.baseUrl = new URL(HOST);
   }
 
-  public Vpos(@Nonnull Environment environment, @Nonnull String newToken) {
+  public Vpos(@Nonnull String newToken, @Nonnull String posId) throws MalformedURLException {
     this(newToken);
-    this.baseUrl = getBaseUrlFromEnvironment(environment);
-  }
-
-  public Vpos(@Nonnull Environment environment, @Nonnull String newToken, @Nonnull String posId) {
-    this(environment, newToken);
     this.posId = posId;
+    this.baseUrl = new URL(HOST);
   }
 
   public Vpos(
-          @Nonnull Environment environment,
           @Nonnull String newToken,
           @Nonnull String posId,
-          @Nonnull String supervisorCard) {
-    this(environment, newToken, posId);
+          @Nonnull String supervisorCard) throws MalformedURLException {
+    this(newToken, posId);
     this.supervisorCard = supervisorCard;
   }
 
   public Vpos(
-          @Nonnull Environment environment,
           @Nonnull String newToken,
           @Nonnull String posId,
           @Nonnull String supervisorCard,
-          @Nonnull String paymentCallbackUrl) {
-    this(environment, newToken, posId, supervisorCard);
+          @Nonnull String paymentCallbackUrl) throws MalformedURLException {
+    this(newToken, posId, supervisorCard);
     this.paymentCallbackUrl = paymentCallbackUrl;
   }
 
   public Vpos(
-          @Nonnull Environment environment,
           @Nonnull String newToken,
           @Nonnull String posId,
           @Nonnull String supervisorCard,
           @Nonnull String paymentCallbackUrl,
-          @Nonnull String refundCallbackUrl) {
-    this(environment, newToken, posId, supervisorCard, paymentCallbackUrl);
+          @Nonnull String refundCallbackUrl) throws MalformedURLException {
+    this(newToken, posId, supervisorCard, paymentCallbackUrl);
     this.refundCallbackUrl = refundCallbackUrl;
   }
 
@@ -575,14 +543,5 @@ public class Vpos {
   public String getTransactionId(String location) throws IOException, InterruptedException {
     var endLocationIndex = location.length() - 1;
     return location.substring(BEGIN_LOCATION_INDEX, endLocationIndex);
-  }
-
-  @NotNull
-  private URL getBaseUrlFromEnvironment(Environment environment) {
-    try {
-      return (environment == Environment.SANDBOX) ? new URL(PRODUCTION_BASE_URL) : new URL(SANDBOX_BASE_URL);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

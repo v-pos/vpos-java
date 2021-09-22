@@ -2,3 +2,6 @@ App.java
 target/*
 .idea
 *.iml
+.classpath
+.project
+.settings/*

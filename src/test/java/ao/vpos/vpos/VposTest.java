@@ -7,7 +7,6 @@ import ao.vpos.vpos.model.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -15,21 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class VposTest {
     // NEGATIVES
-    @Test
-    public void itShouldNotGetAllTransactionsIfTokenInvalid() throws IOException, InterruptedException {
-        var merchant = new Vpos("invalid-token");
-        ApiException exception = null;
-        Response<List<Transaction>> response = null;
-        try {
-            response = merchant.getTransactions();
-        } catch (ApiException e) {
-            exception = e;
-        }
-
-        assertEquals(401, exception.getStatus());
-        assertEquals("\"Unauthorized\"", exception.getResponseBody());
-    }
-
     @Test
     public void itShouldNotGetSingleTransactionIfParentTransactionIdDoesNotExist() throws IOException, InterruptedException {
 
@@ -141,21 +125,6 @@ public class VposTest {
     }
 
     @Test
-    public void itShouldGetAllTransactions() throws IOException, InterruptedException, ApiException {
-        var merchant = new Vpos();
-        var response = merchant.getTransactions();
-        assertEquals(200, response.getStatusCode());
-        assertEquals("OK", response.getMessage());
-        assertNotNull(response.getData().get(0).getAmount());
-        assertNotNull(response.getData().get(0).getMobile());
-        assertNotNull(response.getData().get(0).getId());
-        assertNotNull(response.getData().get(0).getStatus());
-        assertNotNull(response.getData().get(0).getPosId());
-        assertNotNull(response.getData().get(0).getType());
-        assertNotNull(response.getData().get(0).getStatusDatetime());
-    }
-
-    @Test
     public void itShouldCreateNewPaymentTransaction() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
         var response = merchant.newPayment("900111222", "99.45");
@@ -167,7 +136,7 @@ public class VposTest {
     @Test
     public void itShouldCreateNewRefundTransaction() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("900111222", "123.45");
+        var response = merchant.newPayment("900000000", "123.45");
         var transactionId = merchant.getTransactionId(response.getLocation());
 
         TimeUnit.SECONDS.sleep(10);
@@ -185,7 +154,7 @@ public class VposTest {
     @Test
     public void itShouldGetRequestWhileTransactionIsQueued() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("900111222", "123.45");
+        var response = merchant.newPayment("900000000", "123.45");
         var transactionId = merchant.getTransactionId(response.getLocation());
 
         Response<Request> request = merchant.getRequest(transactionId);

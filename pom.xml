@@ -6,10 +6,10 @@
 
   <groupId>ao.vpos.vpos</groupId>
   <artifactId>vpos</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 
   <name>vpos</name>
-  <url>https://github.com/nextbss/vpos-java</url>
+  <url>https://github.com/v-pos/vpos-java</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
