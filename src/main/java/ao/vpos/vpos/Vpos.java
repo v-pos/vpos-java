@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Vpos {
-  private static final String HOST = "https://api.vpos.ao";
+  private static final String HOST = "https://vpos.ao";
   private final HttpClient client = HttpClient.newHttpClient();
 
   private URL baseUrl;

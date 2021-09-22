@@ -136,7 +136,7 @@ public class VposTest {
     @Test
     public void itShouldCreateNewRefundTransaction() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("900111222", "123.45");
+        var response = merchant.newPayment("900000000", "123.45");
         var transactionId = merchant.getTransactionId(response.getLocation());
 
         TimeUnit.SECONDS.sleep(10);
@@ -154,7 +154,7 @@ public class VposTest {
     @Test
     public void itShouldGetRequestWhileTransactionIsQueued() throws IOException, InterruptedException, ApiException {
         var merchant = new Vpos();
-        var response = merchant.newPayment("900111222", "123.45");
+        var response = merchant.newPayment("900000000", "123.45");
         var transactionId = merchant.getTransactionId(response.getLocation());
 
         Response<Request> request = merchant.getRequest(transactionId);
